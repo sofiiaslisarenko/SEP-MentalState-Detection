@@ -12,5 +12,8 @@ os.chdir(path)
 file_get = [file for file in os.listdir(path)]
 print(file_get)
 
-df0 = pd.read(file_get[0])
-dfSuicideDet = pd.read(file_get[1])
+df0 = pd.read_csv(file_get[0])
+dfSuicideDet = pd.read_csv(file_get[1])
+
+print(df0.head())
+print(dfSuicideDet.head())
