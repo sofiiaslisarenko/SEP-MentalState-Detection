@@ -1,9 +1,11 @@
+Für Windows:
 1. workspace erstellen
 
 2. repositorie clonen
     git clone https://github.com/sofiiaslisarenko/SEP-Projekt-Deppressionen
 
 3. envoirement erstellen:
+    (Bei PyCharm direkt beim Workspace erstellen)
     -   Das envoirement dient dazu, das Module per pip nicht "in alle Projekte geladen" werden und so Probleme verursachen.
         Beispielsweise können Versionskonflikte auftreten (PyTorch und NumPy sind bekannt dafür).
 
