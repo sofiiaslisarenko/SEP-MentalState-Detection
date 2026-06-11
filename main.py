@@ -17,3 +17,12 @@ dfSuicideDet = pd.read_csv(file_get[1])
 
 print(df0.head())
 print(dfSuicideDet.head())
+
+# cleanup und merging der beiden Dataframes, falls kompatibel
+
+# Unique Werte in den Dataframes überprüfen, bzw Welche Werte sich Doppeln
+# Und ob das für die Klassifikation relevant sein könnte, oder ob es sich um Rauschen handelt, welches entfernt werden sollte
+print(df0.nunique())
+print(dfSuicideDet.nunique())
+
+# Klassifikation zum finden, oder testen von Features, welche relevant sein könnten
