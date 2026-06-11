@@ -1,0 +1,16 @@
+1. workspace erstellen
+
+2. repositorie clonen
+    git clone https://github.com/sofiiaslisarenko/SEP-Projekt-Deppressionen
+
+3. envoirement erstellen:
+    -   Das envoirement dient dazu, das Module per pip nicht "in alle Projekte geladen" werden und so Probleme verursachen.
+        Beispielsweise können Versionskonflikte auftreten (PyTorch und NumPy sind bekannt dafür).
+
+    einfach die setup.bat datai ausführen, dann im CMD Terminal:
+        venv\Scripts\activate
+
+    alternativ manuel im cmd Terminal:
+        python -m venv <your_enovirement_name>   (statt your_enovirement_name einen beliebigen namen wählen)
+        <your_enovirement_name>\Scripts\activate
+        pip install -r requirements.txt
