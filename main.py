@@ -4,17 +4,21 @@ import matplotlib.pyplot as plt     #Zusammen mit seaborn zum erstellen von Grap
 import re                           #Für Regex Operationen
 import seaborn as sns
 
-#Finde den Pfad zu dem Datasets Ordner:
-path = os.path.join(os.getcwd(), "Datasets")
-print(f"Path to datasets: {path}")
 
+
+#Finde den Pfad zu dem Datasets Ordner:
+path = os.getcwd()
+output_path = os.path.join(path, "Output")
+data_path = os.path.join(path, "Datasets")
+print(f"Path to datasets: {data_path}")
 #Ändere das Arbeitsverzeichniss in den gefundenen Pfad:
-os.chdir(path)
+os.chdir(data_path)
 
 # Erstellen einer Liste mit den csv Dateien und erste Auswertungen
-file_get = [file for file in os.listdir(path)]
+file_get = [file for file in os.listdir(data_path)]
 print(file_get)
 
+# Einlesen der CSV Dateien
 df0 = pd.read_csv(file_get[0])
 df1 = pd.read_csv(file_get[1])
 
@@ -33,6 +37,10 @@ df1 = pd.read_csv(file_get[1])
 # Sebastians Explorative Daten analyse:
 def expl_data():
     """Graphische Darstellung der Daten zum Visuellen analysieren."""
+
+    # ändere den path auf den outputfolder:
+    os.chdir(output_path)
+
     #BoW u token per message...
     #sentence len
     #pronouns
@@ -45,6 +53,9 @@ def expl_data():
     self_pronouns = r'(?i)\b(we|us|ourselves|ourself|i|me|mine|myself|my)\b'
     other_pronouns = r'(?i)\b(you|your|yours|yourself|yourselves|he|she|her|hers|herself|him|his|himself|they|them|their|theirs|themselves|thyself|thine)\b'
 
+
+
+    # -------------------------------------------- ZÄHLEN ----------------------------------------------
     # Zählen:
     #selbstbezogene Pronomen in Statement
     df0['self_pronouns_count'] = df0["statement"].str.count(self_pronouns)
@@ -64,47 +75,90 @@ def expl_data():
     df0.info()
     print(df0.head())
 
+
+    # -------------------------------------------- ANALYSEN ----------------------------------------------
     # Analysieren von summen, abweichungen, anteilen und Durchschnitten/median
     anteil_self_to_all = df0.groupby('status')['self_pronouns_count'].sum() / df0.groupby('status')['all_pronouns_count'].sum() #sum summiert die gruppierten einträge von df0 status
     print(f"Anteil der selbstbezogene Pronomen (plural + singular) in allen Pronomen: \n{anteil_self_to_all}")
+
     std_self = df0.groupby('status')['self_pronouns_count'].std()   #std() ist die funktion für das einfache berechnen der standart abweichung
     print(f"Standardabweichung des Vorkommens von selbstbezogenen Pronomen (plural + singular) pro Gruppe in statements: \n{std_self}")
+    
     std_all = df0.groupby('status')['all_pronouns_count'].std()
     print(f"Standardabweichung aller Pronomen pro Gruppe in statements: \n{std_all}")
+    
     std_dif_pron = df0.groupby('status')['dif_pronouns'].std()
     print(f"Standartabweichung der Differenz der selbstb. Pronomen und der anderen: \n{std_dif_pron}")
+    
     x_len = df0.groupby('status')['word_count'].median()
     std_len = df0.groupby('status')['word_count'].std()
     print(f"Median der Wortlänge jeder Gruppe und ihre Standardabweichung: \n{x_len}\n{std_len}")
+    
     std_pronoun_ratio = df0.groupby('status')['self_pronoun_to_word_ratio'].std()
     durchschnitt = df0.groupby('status')['self_pronoun_to_word_ratio'].mean()
     median = df0.groupby('status')['self_pronoun_to_word_ratio'].median()
     print(f"Durchschnitt der self pronouns to words Ratio pro Gruppe: \n{durchschnitt}")
     print(f"Median der self pronouns to words Ratio pro Gruppe: \n{median}")
+    
     print(f"Standardabweichung der self pronouns to words Ratio pro Gruppe: \n{std_pronoun_ratio}")
     x_dif_pron = df0.groupby('status')['dif_pronouns'].mean()
     print(f"Median der Differenz der Pronomen pro Gruppe: \n{x_dif_pron}")
-    #normalisieren von ergebnissen:
     
-    #Bauen des Graphen mit seaborn (sns)
+
+
+    #------------------------------------------------- GRAPHEN ------------------------------------------------------
+    # --- Erster Graph ---
     fig, axes = plt.subplots(nrows=1, ncols=2)
-    sns.barplot(ax = axes[0], x=anteil_self_to_all.index, y=anteil_self_to_all.values, hue=anteil_self_to_all.index, legend=True)
-    axes[0].set_ylabel("Ratio of self pronouns to all pronouns in %")
+    sns.set_theme(style="whitegrid", palette="husl")
+    fig.set_size_inches(16, 9)
+    fig.suptitle("Pronomen-Analyse: Anteil und Verteilung", fontsize=18, fontweight='bold', y=0.98)
+    
+    sns.barplot(ax=axes[0], x=anteil_self_to_all.index, y=anteil_self_to_all.values, hue=anteil_self_to_all.index, legend=True)
+    axes[0].set_title("Anteil der Ich-Pronomen an allen Pronomen", fontsize=14)
+    axes[0].set_ylabel("Ratio in %")
+    axes[0].set_xlabel("Status")
     axes[0].set_yticklabels([f'{x*100:.0f}%' for x in axes[0].get_yticks()])
     axes[0].set_xticklabels(axes[0].get_xticklabels(), rotation=45)
-    sns.boxenplot(ax = axes[1], x="self_pronoun_to_word_ratio", y="status", data=df0, hue = "status")
-    plt.show()
-    fig, axes = plt.subplots(nrows=2, ncols=3)
-    sns.histplot(ax = axes[0,0],data=df0, x="self_pronoun_to_word_ratio", hue="status", kde=True, bins = 40)
-    sns.histplot(ax = axes[0,1],data=df0, x="self_pronouns_count", hue="status", kde=False, log_scale=False, bins = 30, binrange = (5,100))
-    sns.histplot(ax = axes[1,1],data=df0, x="all_pronouns_count", hue="status", kde=False, log_scale=False, bins = 30, binrange = (5,100))
-    sns.histplot(ax = axes[1,2],data=df0, x="all_pronouns_count", hue="status", kde=False, log_scale=False, bins = 30, binrange = (0,6))
-    sns.histplot(ax = axes[1,0],data=df0, x="word_count", hue="status", kde=True,log_scale=True)
-    sns.violinplot(ax = axes[0,2],data=df0, y = "pronoun_dominance", x = "status", hue = "status")
-
+    
+    sns.boxenplot(ax=axes[1], x="self_pronoun_to_word_ratio", y="status", data=df0, hue="status")
+    axes[1].set_title("Verhältnis: Ich-Pronomen zur Textlänge", fontsize=14)
+    axes[1].set_xlabel("Ratio (Ich-Pronomen / Gesamtwörter)")
+    axes[1].set_ylabel("") # Status steht schon an der Achse
+    
+    plt.tight_layout() 
+    fig.savefig("pronoun_analysis_1.png") # Speichern vor show()
     plt.show()
 
+    # --- Zweiter Graph ---
+    fig, axes = plt.subplots(nrows=2, ncols=2)
+    sns.set_theme(style="whitegrid", palette="husl") # Theme nochmal für diese Figur anwenden
+    fig.set_size_inches(16, 9)
+    fig.suptitle("Verteilung der Text-Features", fontsize=18, fontweight='bold', y=0.98)
+    
+    sns.histplot(ax=axes[0,0], data=df0, x="self_pronoun_to_word_ratio", hue="status", kde=True, bins=40)
+    axes[0,0].set_title("Dichteverteilung: Ich-Pronomen-Ratio", fontsize=12)
+    axes[0,0].set_xlabel("Ratio (Ich-Pronomen / Gesamtwörter)")
+    
+    sns.violinplot(ax=axes[0,1], data=df0, y="pronoun_dominance", x="status", hue="status")   
+    axes[0,1].set_title("Pronomen-Dominanz", fontsize=12)
+    axes[0,1].set_ylabel("Score (-1 = Andere, +1 = Selbst)")
+    axes[0,1].set_xlabel("Status")
+    
+    sns.histplot(ax=axes[1,0], data=df0, x="word_count", hue="status", kde=True, log_scale=True)
+    axes[1,0].set_title("Verteilung der Textlängen", fontsize=12)
+    axes[1,0].set_xlabel("Anzahl Wörter (Logarithmisch)")
+    
+    sns.histplot(ax=axes[1,1], data=df0, x="all_pronouns_count", hue="status", kde=False, log_scale=True, bins=30)
+    axes[1,1].set_title("Verteilung aller genutzten Pronomen", fontsize=12)
+    axes[1,1].set_xlabel("Anzahl Pronomen (Logarithmisch)")
+    
+    plt.tight_layout()
+    fig.savefig("pronoun_analysis_2.png")
+    plt.show()
 
+
+
+    # ------------------------------- WEITERE ANALYSEN (VORBEREITUNG) -------------------------------
     # Absolutistische Wörter (Alles oder Nichts Denken)
     absolutist_words = r'(?i)\b(always|never|absolutely|completely|nothing|everything|entirely|all)\b'
     
@@ -113,6 +167,9 @@ def expl_data():
     past_words = r'(?i)\b(was|were|had|did|been|could)\b'
     future_words = r'(?i)\b(will|shall|going to|might|worry|worried|anxious)\b'
     
+
+
+    # ------------------------------- WEITERE ANALYSEN (ZÄHLEN) -------------------------------------
     # Absolutismus-Quote (Absolutistische Wörter pro Wort)
     df0['absolutist_count'] = df0["statement"].str.count(absolutist_words)
     df0['absolutist_ratio'] = df0['absolutist_count'] / df0['word_count']
@@ -127,7 +184,11 @@ def expl_data():
     # Der Backslash \ ist wichtig, weil ? und . in Regex Sonderzeichen sind.
     df0['question_marks_count'] = df0["statement"].str.count(r'\?')
     df0['ellipses_count'] = df0["statement"].str.count(r'\.\.\.')
+    df0['exclamation_marks_count'] = df0["statement"].str.count(r'\!')
+    
 
+
+    # ------------------------------- WEITERE ANALYSEN (AUSWERTUNG) -------------------------------------
     # auswertung
     print("\n------")
     durchschnitt_absolutist = df0.groupby('status')['absolutist_ratio'].mean()
@@ -141,4 +202,56 @@ def expl_data():
     
     durchschnitt_ellipsen = df0.groupby('status')['ellipses_count'].mean()
     print(f"Durchschnittliche Ellipsen (...) pro Statement: \n{durchschnitt_ellipsen}")
+
+    durchschnitt_ausrufezeichen = df0.groupby('status')['exclamation_marks_count'].mean()
+    print(f"Durchschnittliche Ausrufezeichen (!) pro Statement: \n{durchschnitt_ausrufezeichen}")
+
+
+    # 2. Eine große, aufgeräumte Figur mit 4 Bereichen (2x2) erstellen
+    fig, axes = plt.subplots(nrows=2, ncols=2, figsize=(16, 9))
+    fig.suptitle("Psychologische Textprofile im Vergleich", fontsize=20, fontweight='bold', y=0.98)
+
+    # --- Graph 1: Pronomen-Dominanz (Oben Links) ---
+    sns.violinplot(ax=axes[0, 0], data=df0, x="pronoun_dominance", y="status", hue="status", legend=False)
+    axes[0, 0].axvline(0, color='red', linestyle='--', alpha=0.6) # Rote Null-Linie
+    axes[0, 0].set_title("Fokus: Andere vs. Selbst (Pronomen)", fontsize=14)
+    axes[0, 0].set_xlabel("<- Fokus Andere (0.0) Fokus Selbst ->")
+    axes[0, 0].set_ylabel("")
+
+    # --- Graph 2: Zeit-Fokus (Oben Rechts) ---
+    sns.violinplot(ax=axes[0, 1], data=df0, x="time_focus_score", y="status", hue="status", legend=False)
+    axes[0, 1].axvline(0, color='red', linestyle='--', alpha=0.6) # Rote Null-Linie
+    axes[0, 1].set_title("Fokus: Zukunft vs. Vergangenheit", fontsize=14)
+    axes[0, 1].set_xlabel("<- Zukunft / Sorgen (0.0) Vergangenheit / Reue ->")
+    axes[0, 1].set_ylabel("")
+
+    # --- Graph 3: Fragezeichen-Dichte (Unten Links) ---
+    # Wir nehmen den Durchschnitt (mean) per Barplot. Die kleinen Striche sind die Fehlertoleranz.
+    sns.barplot(ax=axes[1, 0], data=df0, x="question_marks_count", y="status", hue="status", legend=False)
+    axes[1, 0].set_title("Durchschnittliche Fragen pro Statement", fontsize=14)
+    axes[1, 0].set_xlabel("Anzahl Fragezeichen")
+    axes[1, 0].set_ylabel("")
+
+    # --- Graph 4: Absolutismus-Quote (Unten Rechts) ---
+    # Wir multiplizieren die Ratio mit 100, um schöne Prozentzahlen (0-2%) auf der Achse zu haben
+    df0['absolutist_percent'] = df0['absolutist_ratio'] * 100
+    sns.barplot(ax=axes[1, 1], data=df0, x="absolutist_percent", y="status", hue="status", legend=False)
+    axes[1, 1].set_title("Anteil absolutistischer Wörter", fontsize=14)
+    axes[1, 1].set_xlabel("Anteil am Gesamttext in %")
+    axes[1, 1].set_ylabel("")
+
+    # 3. Das Layout atmen lassen (Abstände anpassen)
+    plt.tight_layout(rect=(0, 0.03, 1, 0.95))
+    fig.savefig("pronoun_analysis_3.png")
+    plt.show()
+
+
+    
+    #----------------------------------- GEWONNENE DATEN ALS CSV SPEICHERN --------------------------------
+    data_stored = [anteil_self_to_all,  x_dif_pron, x_len, std_self, std_all, std_dif_pron,durchschnitt_absolutist, median, durchschnitt_time, durchschnitt, durchschnitt_fragen, durchschnitt_ellipsen, durchschnitt_ausrufezeichen]
+    data_stored_names = ['anteil_self_to_all', 'x_dif_pron', 'x_len', 'std_self', 'std_all', 'std_dif_pron', 'durchschnitt_absolutist', 'self_pronoun_to_word_ratio_median', 'durchschnitt_time', 'self_pronoun_to_word_ratio', 'durchschnitt_fragen', 'durchschnitt_ellipsen', 'durchschnitt_ausrufezeichen']
+    df_results = pd.DataFrame(data_stored, index=data_stored_names)
+    df_results.to_csv('analysis_results.csv')
+
+
 expl_data()
