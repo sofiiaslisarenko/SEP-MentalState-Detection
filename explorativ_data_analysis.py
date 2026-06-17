@@ -252,6 +252,3 @@ def expl_data():
     data_stored_names = ['anteil_self_to_all', 'x_dif_pron', 'x_len', 'std_self', 'std_all', 'std_dif_pron', 'durchschnitt_absolutist', 'self_pronoun_to_word_ratio_median', 'durchschnitt_time', 'self_pronoun_to_word_ratio', 'durchschnitt_fragen', 'durchschnitt_ellipsen', 'durchschnitt_ausrufezeichen']
     df_results = pd.DataFrame(data_stored, index=data_stored_names)
     df_results.to_csv('analysis_results.csv')
-
-
-expl_data()
