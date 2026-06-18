@@ -26,5 +26,10 @@ print("Unique Classes:", df['status'].unique())
 print(df['status'].value_counts())
 # 5 Die leere Spalten werden gelöscht
 print("Groesse bevor Cleaning:", df.shape)
-df = df.dropna(subset=['statement'])
+df = df.dropna(subset=['statement', 'status'])
 print("Groesse nach Cleaning:", df.shape)
+
+# Entfernung von 13 Spalten mit NAME die leer sind
+df = df[df['statement'] != '#NAME?']
+print("Groesse mit NAME:", df.shape)
+print(df[df['statement'].str.contains('NAME', na=False)]['statement'].tolist())
