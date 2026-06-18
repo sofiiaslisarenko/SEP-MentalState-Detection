@@ -211,18 +211,16 @@ def expl_data():
     fig, axes = plt.subplots(nrows=2, ncols=2, figsize=(16, 9))
     fig.suptitle("Psychologische Textprofile im Vergleich", fontsize=20, fontweight='bold', y=0.98)
 
-    # --- Graph 1: Pronomen-Dominanz (Oben Links) ---
-    sns.violinplot(ax=axes[0, 0], data=df0, x="pronoun_dominance", y="status", hue="status", legend=False)
-    axes[0, 0].axvline(0, color='red', linestyle='--', alpha=0.6) # Rote Null-Linie
-    axes[0, 0].set_title("Fokus: Andere vs. Selbst (Pronomen)", fontsize=14)
-    axes[0, 0].set_xlabel("<- Fokus Andere (0.0) Fokus Selbst ->")
+    # --- Graph 1: Ausrufezeichen (Oben Links) ---
+    sns.barplot(ax=axes[0, 0], data=df0, x="exclamation_marks_count",y="status", hue="status")
+    axes[0, 0].set_title("Verteilung der Ausrufezeichen", fontsize=14)
+    axes[0, 0].set_xlabel("Anzahl Ausrufezeichen pro Statement")
     axes[0, 0].set_ylabel("")
 
-    # --- Graph 2: Zeit-Fokus (Oben Rechts) ---
-    sns.violinplot(ax=axes[0, 1], data=df0, x="time_focus_score", y="status", hue="status", legend=False)
-    axes[0, 1].axvline(0, color='red', linestyle='--', alpha=0.6) # Rote Null-Linie
-    axes[0, 1].set_title("Fokus: Zukunft vs. Vergangenheit", fontsize=14)
-    axes[0, 1].set_xlabel("<- Zukunft / Sorgen (0.0) Vergangenheit / Reue ->")
+    # Wir multiplizieren die Ratio mit 100, um schöne Prozentzahlen (0-2%) auf der Achse zu haben
+    sns.barplot(ax=axes[0, 1], data=df0, x="ellipses_count", y="status", hue="status", legend=False)
+    axes[0, 1].set_title("Durchschnittliche Ellipsen (...) pro Statement", fontsize=14)
+    axes[0, 1].set_xlabel("Anzahl Ellipsen (...)")
     axes[0, 1].set_ylabel("")
 
     # --- Graph 3: Fragezeichen-Dichte (Unten Links) ---
@@ -245,10 +243,23 @@ def expl_data():
     fig.savefig("pronoun_analysis_3.png")
     plt.show()
 
+    # --- Graph: Zeit-Fokus (Oben Rechts) ---
+    fig = plt.figure(figsize=(16, 9))
+    axes = fig.add_axes((0.1, 0.1, 0.8, 0.8)) # Manuelle Achsenpositionierung
+    sns.violinplot(data=df0, x="time_focus_score", y="status", hue="status", legend=False)
+    axes.axvline(0, color='red', linestyle='--', alpha=0.6) # Rote Null-Linie
+    axes.set_title("Fokus: Zukunft vs. Vergangenheit", fontsize=14)
+    axes.set_xlabel("<- Zukunft / Sorgen (0.0) Vergangenheit / Reue ->")
+    axes.set_ylabel("")
 
+    plt.tight_layout(rect=(0, 0.03, 1, 0.95))
+    fig.savefig("pronoun_analysis_4.png")
+    plt.show()
     
     #----------------------------------- GEWONNENE DATEN ALS CSV SPEICHERN --------------------------------
     data_stored = [anteil_self_to_all,  x_dif_pron, x_len, std_self, std_all, std_dif_pron,durchschnitt_absolutist, median, durchschnitt_time, durchschnitt, durchschnitt_fragen, durchschnitt_ellipsen, durchschnitt_ausrufezeichen]
     data_stored_names = ['anteil_self_to_all', 'x_dif_pron', 'x_len', 'std_self', 'std_all', 'std_dif_pron', 'durchschnitt_absolutist', 'self_pronoun_to_word_ratio_median', 'durchschnitt_time', 'self_pronoun_to_word_ratio', 'durchschnitt_fragen', 'durchschnitt_ellipsen', 'durchschnitt_ausrufezeichen']
     df_results = pd.DataFrame(data_stored, index=data_stored_names)
     df_results.to_csv('analysis_results.csv')
+
+    #return df0[]
