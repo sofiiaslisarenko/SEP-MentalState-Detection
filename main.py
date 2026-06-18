@@ -1,16 +1,30 @@
-import pandas as pd
+#Herunterladung von Dataset, damit man das bearbeiten und prüfen kann
+import kagglehub
+
+# Download latest version
+path = kagglehub.dataset_download("szegeelim/mental-health")
+
+print("Path to dataset files:", path)
+import kagglehub
 import os
-
-#Finde den Pfad zu dem Datasets Ordner:
-path = os.path.join(os.getcwd(), "Datasets")
-print(f"Path to datasets: {path}")
-
-#Ändere das Arbeitsverzeichniss in den gefundenen Pfad:
-os.chdir(path)
-
-# Erstellen einer Liste mit den csv Dateien und erste Auswertungen
-file_get = [file for file in os.listdir(path)]
-print(file_get)
-
-df0 = pd.read(file_get[0])
-dfSuicideDet = pd.read(file_get[1])
+import pandas as pd
+path = kagglehub.dataset_download("szegeelim/mental-health")
+# Weg zu dem File genau
+file_path = os.path.join(path, "Combined Data.csv")
+# Wird als Tabelle gelesen
+df = pd.read_csv(file_path)
+# 1 Typen von Daten in jeder Spalte
+print("Datentypen:")
+print(df.info())
+# 2 Gibt es leere Spalte
+print("Leere Columns:")
+print(df.isnull().sum())
+# 3 Gibt es Reihen, die wiederholt wurden
+print("Anzahl von Duplikaten:", df.duplicated().sum())
+# 4 Unique values werden statt 'status' die echte Name der Spalte
+print("Unique Classes:", df['status'].unique())
+print(df['status'].value_counts())
+# 5 Die leere Spalten werden gelöscht
+print("Groesse bevor Cleaning:", df.shape)
+df = df.dropna(subset=['statement'])
+print("Groesse nach Cleaning:", df.shape)
