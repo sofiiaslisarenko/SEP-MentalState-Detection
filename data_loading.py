@@ -20,7 +20,7 @@ def load_data():
     # Erstellen einer Liste mit den csv Dateien und erste Auswertungen
     file_get = [file for file in os.listdir(path)]
 
-    df0 = pd.read_csv(file_get[0])
+    df0 = pd.read_csv(file_get[0], encoding='utf-8')
 
     return df0
 
@@ -31,3 +31,8 @@ if __name__ == "__main__":
     # Kurze Kontrolle, ob die Daten korrekt geladen wurden:
     print(df0.head())       # erste Zeilen ansehen
     print(df0.nunique())    # Anzahl eindeutiger Werte pro Spalte
+
+    kaputt = df0["statement"].iloc[348]   # die Zeile mit dem internship-Emoji
+    print(repr(kaputt)) # Kaputte Zeichen - 'â', 'ðŸ'
+    mask = df0["statement"].str.contains("ð", na=False)
+    print("Mojibake-Treffer:", mask.sum())
