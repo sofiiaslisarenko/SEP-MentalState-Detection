@@ -99,10 +99,10 @@ def expl_data(df0 : pd.DataFrame):
     sns.boxenplot(ax=axes[1], x="self_pronoun_to_word_ratio", y="status", data=df0, hue="status")
     axes[1].set_title("Verhältnis: Ich-Pronomen zur Textlänge", fontsize=14)
     axes[1].set_xlabel("Ratio (Ich-Pronomen / Gesamtwörter)")
-    axes[1].set_ylabel("") # Status steht schon an der Achse
+    axes[1].set_ylabel("")
     
     plt.tight_layout() 
-    fig.savefig("pronoun_analysis_1.png") # Speichern vor show()
+    fig.savefig("pronoun_analysis_1.png")
     plt.show()
 
     # --- Zweiter Graph ---
@@ -134,10 +134,10 @@ def expl_data(df0 : pd.DataFrame):
 
 
     # ------------------------------- WEITERE ANALYSEN (VORBEREITUNG) -------------------------------
-    # Absolutistische Wörter (Alles oder Nichts Denken)
+    # Absolutistische Wörter 
     absolutist_words = r'(?i)\b(always|never|absolutely|completely|nothing|everything|entirely|all|nobody|forever|ever|noone|everyone|everybody|i know|impossible|must)\b'
     uncertain_words = r'(?i)\b(maby|perhaps|possibly|possible|may|might|could|i think|not sure|uncertain)\b'
-    # Zeitliche Orientierung (Past und Future)
+    # Zeitliche Orientierung 
     past_words = r'(?i)\b(was|were|had|did|been|could|said|went|ago|last|got|wanted|used|liked)\b'
     future_words = r"(?i)\b(will|shall|going to|might|worry|worried|anxious|'ll)\b"
     
@@ -183,43 +183,39 @@ def expl_data(df0 : pd.DataFrame):
     print(f"Durchschnittliche Ausrufezeichen (!) pro Statement: \n{durchschnitt_ausrufezeichen}")
 
 
-    # 2. Eine große, aufgeräumte Figur mit 4 Bereichen (2x2) erstellen
     fig, axes = plt.subplots(nrows=2, ncols=2, figsize=(16, 9))
     fig.suptitle("Psychologische Textprofile im Vergleich", fontsize=20, fontweight='bold', y=0.98)
 
-    # --- Graph 1: Ausrufezeichen (Oben Links) ---
+    # ---Ausrufezeichen ---
     sns.barplot(ax=axes[0, 0], data=df0, x="exclamation_marks_count",y="status", hue="status")
     axes[0, 0].set_title("Verteilung der Ausrufezeichen", fontsize=14)
     axes[0, 0].set_xlabel("Anzahl Ausrufezeichen pro Statement")
     axes[0, 0].set_ylabel("")
 
-    # Wir multiplizieren die Ratio mit 100, um schöne Prozentzahlen (0-2%) auf der Achse zu haben
     sns.barplot(ax=axes[0, 1], data=df0, x="ellipses_count", y="status", hue="status", legend=False)
     axes[0, 1].set_title("Durchschnittliche Ellipsen (...) pro Statement", fontsize=14)
     axes[0, 1].set_xlabel("Anzahl Ellipsen (...)")
     axes[0, 1].set_ylabel("")
 
-    # --- Graph 3: Fragezeichen-Dichte (Unten Links) ---
-    # Wir nehmen den Durchschnitt (mean) per Barplot. Die kleinen Striche sind die Fehlertoleranz.
+    # ---  Fragezeichen-Dichte ---
     sns.barplot(ax=axes[1, 0], data=df0, x="question_marks_count", y="status", hue="status", legend=False)
     axes[1, 0].set_title("Durchschnittliche Fragen pro Statement", fontsize=14)
     axes[1, 0].set_xlabel("Anzahl Fragezeichen")
     axes[1, 0].set_ylabel("")
 
-    # --- Graph 4: Absolutismus-Quote (Unten Rechts) ---
-    # Wir multiplizieren die Ratio mit 100, um schöne Prozentzahlen (0-2%) auf der Achse zu haben
+    # --- Absolutismus-Quote ---
     df0['absolutist_percent'] = df0['absolutist_ratio'] * 100
     sns.barplot(ax=axes[1, 1], data=df0, x="absolutist_percent", y="status", hue="status", legend=False)
     axes[1, 1].set_title("Anteil absolutistischer Wörter", fontsize=14)
     axes[1, 1].set_xlabel("Anteil am Gesamttext in %")
     axes[1, 1].set_ylabel("")
 
-    # 3. Das Layout atmen lassen (Abstände anpassen)
+  
     plt.tight_layout(rect=(0, 0.03, 1, 0.95))
     fig.savefig("pronoun_analysis_3.png")
     plt.show()
 
-    # --- Graph: Zeit-Fokus (Oben Rechts) ---
+    # --- Zeit-Fokus---
     fig, axes = plt.subplots(nrows=1, ncols=2, figsize = (16,9)) # Manuelle Achsenpositionierung
     sns.violinplot(ax = axes[1],data=df0, x="time_focus_score", y="status", hue="status", legend=False)
     axes[1].axvline(0, color='red', linestyle='--', alpha=0.6) # Rote Null-Linie
@@ -266,7 +262,7 @@ def absolute_uncertain(df0 : pd.DataFrame):
     df0['absolute_uncertain_ratio'] = ((df0['absolutist_count'] - df0['uncertain_count']) / (df0['uncertain_count'] + df0['absolutist_count'])).fillna(0)
     maske_echte_werte = df0[['total_time_words','uncertain_count','absolutist_count']].all(axis = 1)
     df_plot = df0[maske_echte_werte]
-     # --- Graph: Zeit-Fokus (Oben Rechts) ---
+     # --- Zeit-Fokus---
     fig, axes = plt.subplots(nrows=2, ncols=2, figsize = (16,9)) # Manuelle Achsenpositionierung
     sns.violinplot(ax = axes[0,1],data=df0, x="time_focus_score", y="status", hue="status", legend=False)
     axes[0,1].axvline(0, color='red', linestyle='--', alpha=0.6) # Rote Null-Linie
