@@ -1,9 +1,9 @@
-from data_loading import load_data
+from data_loading import load_data_kaggle
 
 
 def clean_data():
 
-    df = load_data()
+    df = load_data_kaggle()
 
     def remove_non_ascii(text):
         """Entfernt alle Nicht-ASCII-Zeichen (kaputte Mojibake, Emojis, Sonderzeichen).
