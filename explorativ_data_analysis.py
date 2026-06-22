@@ -47,7 +47,10 @@ def expl_data(df0 : pd.DataFrame):
 
     df0.info()
     print(df0.head())
-
+    counter = {i:df0["statement"].str.count(i) for i in self_pronouns}
+    print(counter)
+    counter_other = {i:df0["statement"].str.count(i) for i in other_pronouns}
+    print(counter_other)
 
     # -------------------------------------------- ANALYSEN ----------------------------------------------
     # Analysieren von summen, abweichungen, anteilen und Durchschnitten/median
@@ -270,7 +273,10 @@ def absolute_uncertain(df0 : pd.DataFrame):
     axes[0,1].set_title("Fokus: Zukunft vs. Vergangenheit", fontsize=14)
     axes[0,1].set_xlabel("<- Zukunft / Sorgen (0.0) Vergangenheit / Reue ->")
     axes[0,1].set_ylabel("")
-
+    uncertain_mean = df0.groupby("status")["uncertain_ratio"].mean()
+    print(uncertain_mean)
+    absolut_mean = df0.groupby("status")["absolutist_ratio"].mean()
+    print(absolut_mean)
     sns.histplot(ax = axes[0,0], data = df_plot, x = "absolutist_ratio", hue = "status", legend= True, bins = 25).set(yscale ="log")
     sns.histplot(ax = axes[1,0], x = "uncertain_ratio", hue = "status", data = df_plot, bins = 25).set(yscale ="log")
     #sns.pointplot(ax = axes[1,1], data = df0, x = "absolutist_ratio", y = "uncertain_ratio", hue = "status", errorbar="sd")

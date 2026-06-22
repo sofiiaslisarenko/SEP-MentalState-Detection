@@ -16,5 +16,5 @@ def expl_data_seb():
     #import feature_corralation_test as fct
     df0 = dl.load_data()
     #fct.correlation_test(eda.expl_data(df0))
-    eda.absolute_uncertain(df0)
+    eda.pronouns(df0)
 expl_data_seb()

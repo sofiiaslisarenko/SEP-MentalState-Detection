@@ -242,6 +242,10 @@ def expl_data(df0 : pd.DataFrame):
     os.chdir(path)
     return df0
 
+
+
+
+# ----------------------------------------------------------------------------------------------------
 def absolute_uncertain(df0 : pd.DataFrame):
     path = os.getcwd()
     #output_path = os.path.join(path, "Output")
@@ -268,6 +272,10 @@ def absolute_uncertain(df0 : pd.DataFrame):
     df0['absolute_uncertain_ratio'] = ((df0['absolutist_count'] - df0['uncertain_count']) / (df0['uncertain_count'] + df0['absolutist_count'])).fillna(0)
     maske_echte_werte = df0[['total_time_words','uncertain_count','absolutist_count']].all(axis = 1)
     df_plot = df0[maske_echte_werte]
+    uncertain_mean = df0.groupby("status")["uncertain_count"].mean()
+    print(uncertain_mean)
+    absolut_mean = df0.groupby("status")["absolutist_count"].mean()
+    print(absolut_mean)
      # --- Graph: Zeit-Fokus (Oben Rechts) ---
     # fig, axes = plt.subplots(nrows=2, ncols=2, figsize = (16,9)) # Manuelle Achsenpositionierung
     # sns.violinplot(ax = axes[0,1],data=df0, x="time_focus_score", y="status", hue="status", legend=False)
@@ -284,13 +292,75 @@ def absolute_uncertain(df0 : pd.DataFrame):
     # fig.savefig("pronoun_analysis_5.png")
     # plt.show()
 
+    # sns.jointplot(
+    #     data=df_plot, 
+    #     y="absolute_uncertain_ratio", 
+    #     x="time_focus_score", 
+    #     hue="status", 
+    #     kind="kde",
+    #     levels = 2
+    # )
+    # plt.show()
     sns.jointplot(
         data=df_plot, 
-        y="absolute_uncertain_ratio", 
-        x="time_focus_score", 
+        y="absolutist_count", 
+        x="uncertain_count", 
         hue="status", 
         kind="kde",
-        levels = 2
+        levels = 3,
+        ylim = (0,30),
+        xlim = (0,30)
     )
     plt.show()
     os.chdir(path)
+
+
+
+
+#----------------------------------------------------------------------------------------------------
+def pronouns(df0:pd.DataFrame):
+    #path = os.getcwd()
+    self_pronouns = r'(?i)\b(we|us|ourselves|i|me|mine|myself|my)\b'
+    other_pronouns = r'(?i)\b(you|your|yours|yourself|yourselves|he|she|her|hers|herself|him|his|himself|they|them|their|theirs|themselves|thyself|thine)\b'
+
+
+
+    # -------------------------------------------- ZÄHLEN ----------------------------------------------
+    # Zählen:
+    #selbstbezogene Pronomen in Statement
+    df0['self_pronouns_count'] = df0["statement"].str.count(self_pronouns)
+    #alle Pronomen in Statement
+    df0['all_pronouns_count'] = df0["statement"].str.count(other_pronouns) + df0['self_pronouns_count']
+    # Alle nicht selbstbezogenen Pronomen in Statement, ausgenommen Objektbezogene wie "it"
+    df0['other_pronouns_count'] = df0["statement"].str.count(other_pronouns)
+    # total word count in Statement
+    df0['word_count'] = df0["statement"].str.split().str.len()
+    # wie oft werden ich bezogene Pronomen im verhältniss zur länge der Nachricht verwendet
+    df0['self_pronoun_to_word_ratio'] = df0['self_pronouns_count'] / df0['word_count']
+    df0['other_pronouns_ratio'] = df0['other_pronouns_count'] / df0['word_count']
+    # die Differenz der selbstbezogenen Pronomen und der anderen Pronomen 
+    df0['dif_pronouns'] = df0['self_pronouns_count'] - df0['other_pronouns_count']
+    self_pr = ("we","us","ourself","i","me","mine","myself","my","i\'ll","we\'ll")
+    other_pr = ("you","your","yours","yourself","yourselves","he","she","her","hers","herself","him","his","himself","they","them","their","their\'s","themselves")
+    counter = {i:df0["statement"].to_string().lower().count(i) for i in self_pr}
+    print(counter)
+    counter_other = {i:df0["statement"].to_string().lower().count(i) for i in other_pr}
+    print(counter_other)
+    # Normalisieren der Differenz, bzw wie dominant sind die selbstbezogenen Pronomen auf einer Skala von -1 bis 1
+    # words_over = df0['word_count'] > 0
+    # df0 = df0[words_over]
+    # mask = df0['all_pronouns_count'] > 40
+    # df_plot = df0[mask]
+    # sns.set_theme(style="whitegrid", palette="husl")
+    # sns.jointplot(
+    #     data=df_plot, 
+    #     y="self_pronoun_to_word_ratio", 
+    #     x="other_pronouns_ratio", 
+    #     hue="status", 
+    #     kind="scatter",
+    #     ylim =(0,0.25),
+    #     xlim = (0,0.25) #,
+    #     # levels = 2
+    # )
+    
+    # plt.show()
