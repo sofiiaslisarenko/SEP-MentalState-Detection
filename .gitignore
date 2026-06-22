@@ -1,4 +1,6 @@
 .venv/
 Datasets/
 output/
+.idea/
+__pycache__/
 __pycache__/
