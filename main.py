@@ -11,11 +11,10 @@ os.chdir(path)
 
 # Sebastians Explorative Daten analyse:
 def expl_data_seb():
-    import explorativ_data_analysis as eda
+    import explorativ_data_analysis_copy as eda
     import data_loading as dl
-    import feature_corralation_test as fct
+    #import feature_corralation_test as fct
     df0 = dl.load_data()
     #fct.correlation_test(eda.expl_data(df0))
-    import test_run
-    test_run.test_run(eda.expl_data(df0))
+    eda.absolute_uncertain(df0)
 expl_data_seb()

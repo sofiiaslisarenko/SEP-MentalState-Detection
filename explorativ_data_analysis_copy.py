@@ -11,8 +11,8 @@ def expl_data(df0 : pd.DataFrame):
     # ändere den path auf den outputfolder:
     
     path = os.getcwd()
-    output_path = os.path.join(path, "Output")
-    os.chdir(output_path)
+    #output_path = os.path.join(path, "Output")
+    #os.chdir(output_path)
 
     #BoW u token per message...
     #sentence len
@@ -31,6 +31,7 @@ def expl_data(df0 : pd.DataFrame):
     # -------------------------------------------- ZÄHLEN ----------------------------------------------
     # Zählen:
     #selbstbezogene Pronomen in Statement
+
     df0['self_pronouns_count'] = df0["statement"].str.count(self_pronouns)
     #alle Pronomen in Statement
     df0['all_pronouns_count'] = df0["statement"].str.count(other_pronouns) + df0['self_pronouns_count']
@@ -38,6 +39,8 @@ def expl_data(df0 : pd.DataFrame):
     df0['other_pronouns_count'] = df0["statement"].str.count(other_pronouns)
     # total word count in Statement
     df0['word_count'] = df0["statement"].str.split().str.len()
+    words_over = df0['word_count'] > 10
+    df0 = df0[words_over]
     # wie oft werden ich bezogene Pronomen im verhältniss zur länge der Nachricht verwendet
     df0['self_pronoun_to_word_ratio'] = df0['self_pronouns_count'] / df0['word_count']
     # die Differenz der selbstbezogenen Pronomen und der anderen Pronomen 
@@ -224,9 +227,9 @@ def expl_data(df0 : pd.DataFrame):
     axes[1].set_xlabel("<- Zukunft / Sorgen (0.0) Vergangenheit / Reue ->")
     axes[1].set_ylabel("")
 
-    sns.clustermap(ax = axes[0], data = df0, x = "absolutist_ratio", y = "uncertain_ratio", hue = "status", legend= False)
-    axes[0].axvline(0, color='red', linestyle='--', alpha=0.6)
-    plt.tight_layout(rect=(0, 0.03, 1, 0.95))
+    # sns.clustermap(ax = axes[0], data = df0, x = "absolutist_ratio", y = "uncertain_ratio", hue = "status", legend= False)
+    # axes[0].axvline(0, color='red', linestyle='--', alpha=0.6)
+    # plt.tight_layout(rect=(0, 0.03, 1, 0.95))
     fig.savefig("pronoun_analysis_4.png")
     plt.show()
     
@@ -241,8 +244,8 @@ def expl_data(df0 : pd.DataFrame):
 
 def absolute_uncertain(df0 : pd.DataFrame):
     path = os.getcwd()
-    output_path = os.path.join(path, "Output")
-    os.chdir(output_path)
+    #output_path = os.path.join(path, "Output")
+    #os.chdir(output_path)
     # Absolutistische Wörter (Alles oder Nichts Denken)
     absolutist_words = r'(?i)\b(always|never|absolutely|completely|nothing|everything|entirely|all|nobody|forever|ever|noone|everyone|everybody|i know|impossible|must)\b'
     uncertain_words = r'(?i)\b(maybe|perhaps|possibly|possible|may|might|could|i think|not sure|uncertain)\b'
@@ -256,6 +259,8 @@ def absolute_uncertain(df0 : pd.DataFrame):
     df0['time_focus_score'] = ((df0['past_count'] - df0['future_count']) / df0['total_time_words']).fillna(0)
     # Absolutismus-Quote (Absolutistische Wörter pro Wort)
     df0['word_count'] = df0["statement"].str.split().str.len()
+    words_over = df0['word_count'] > 10
+    df0 = df0[words_over]
     df0['absolutist_count'] = df0["statement"].str.count(absolutist_words)
     df0['absolutist_ratio'] = df0['absolutist_count'] / df0['word_count']
     df0['uncertain_count'] = df0["statement"].str.count(uncertain_words)
@@ -264,20 +269,20 @@ def absolute_uncertain(df0 : pd.DataFrame):
     maske_echte_werte = df0[['total_time_words','uncertain_count','absolutist_count']].all(axis = 1)
     df_plot = df0[maske_echte_werte]
      # --- Graph: Zeit-Fokus (Oben Rechts) ---
-    fig, axes = plt.subplots(nrows=2, ncols=2, figsize = (16,9)) # Manuelle Achsenpositionierung
-    sns.violinplot(ax = axes[0,1],data=df0, x="time_focus_score", y="status", hue="status", legend=False)
-    axes[0,1].axvline(0, color='red', linestyle='--', alpha=0.6) # Rote Null-Linie
-    axes[0,1].set_title("Fokus: Zukunft vs. Vergangenheit", fontsize=14)
-    axes[0,1].set_xlabel("<- Zukunft / Sorgen (0.0) Vergangenheit / Reue ->")
-    axes[0,1].set_ylabel("")
+    # fig, axes = plt.subplots(nrows=2, ncols=2, figsize = (16,9)) # Manuelle Achsenpositionierung
+    # sns.violinplot(ax = axes[0,1],data=df0, x="time_focus_score", y="status", hue="status", legend=False)
+    # axes[0,1].axvline(0, color='red', linestyle='--', alpha=0.6) # Rote Null-Linie
+    # axes[0,1].set_title("Fokus: Zukunft vs. Vergangenheit", fontsize=14)
+    # axes[0,1].set_xlabel("<- Zukunft / Sorgen (0.0) Vergangenheit / Reue ->")
+    # axes[0,1].set_ylabel("")
 
-    sns.histplot(ax = axes[0,0], data = df_plot, x = "absolutist_ratio", hue = "status", legend= True, bins = 25).set(yscale ="log")
-    sns.histplot(ax = axes[1,0], x = "uncertain_ratio", hue = "status", data = df_plot, bins = 25).set(yscale ="log")
-    #sns.pointplot(ax = axes[1,1], data = df0, x = "absolutist_ratio", y = "uncertain_ratio", hue = "status", errorbar="sd")
-    sns.scatterplot(ax = axes[1,1], data = df_plot, x = "uncertain_count", y = "absolutist_count", hue = "status").set(yscale = "log", xscale = "log")
-    #plt.tight_layout(rect=(0, 0.03, 1, 0.95))
-    fig.savefig("pronoun_analysis_5.png")
-    plt.show()
+    # sns.histplot(ax = axes[0,0], data = df_plot, x = "absolutist_ratio", hue = "status", legend= True, bins = 25).set(yscale ="log")
+    # sns.histplot(ax = axes[1,0], x = "uncertain_ratio", hue = "status", data = df_plot, bins = 25).set(yscale ="log")
+    # #sns.pointplot(ax = axes[1,1], data = df0, x = "absolutist_ratio", y = "uncertain_ratio", hue = "status", errorbar="sd")
+    # sns.scatterplot(ax = axes[1,1], data = df_plot, x = "uncertain_count", y = "absolutist_count", hue = "status").set(yscale = "log", xscale = "log")
+    # #plt.tight_layout(rect=(0, 0.03, 1, 0.95))
+    # fig.savefig("pronoun_analysis_5.png")
+    # plt.show()
 
     sns.jointplot(
         data=df_plot, 
@@ -285,7 +290,7 @@ def absolute_uncertain(df0 : pd.DataFrame):
         x="time_focus_score", 
         hue="status", 
         kind="kde",
-        alpha=0.7
+        levels = 2
     )
     plt.show()
     os.chdir(path)
