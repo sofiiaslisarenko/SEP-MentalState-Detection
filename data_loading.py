@@ -14,7 +14,7 @@ def load_data():
     # Finde den Pfad zu dem Datasets Ordner:
     path = os.path.join(os.getcwd(), "Datasets")
 
-    # Ändere das Arbeitsverzeichniss in den gefundenen Pfad:
+    # Ändere das Arbeitsverzeichnis in den gefundenen Pfad:
     os.chdir(path)
 
     # Erstellen einer Liste mit den csv Dateien und erste Auswertungen
@@ -31,5 +31,3 @@ if __name__ == "__main__":
     # Kurze Kontrolle, ob die Daten korrekt geladen wurden:
     print(df0.head())       # erste Zeilen ansehen
     print(df0.nunique())    # Anzahl eindeutiger Werte pro Spalte
-
-
