@@ -3,3 +3,4 @@
 Datasets/
 output/
 __pycache__/
+*.pyc
