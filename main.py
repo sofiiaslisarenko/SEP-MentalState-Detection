@@ -13,6 +13,9 @@ os.chdir(path)
 def expl_data_seb():
     import explorativ_data_analysis as eda
     import data_loading as dl
+    import feature_corralation_test as fct
     df0 = dl.load_data()
-    eda.expl_data(df0)
+    #fct.correlation_test(eda.expl_data(df0))
+    import test_run
+    test_run.test_run(eda.expl_data(df0))
 expl_data_seb()

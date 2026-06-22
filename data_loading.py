@@ -12,16 +12,16 @@ def load_data():
                 'statement' und 'status'.
         """
     # Finde den Pfad zu dem Datasets Ordner:
-    path = os.path.join(os.getcwd(), "Datasets")
-
+    path = os.getcwd()
+    data_path = os.path.join(path, "Datasets")
     # Ändere das Arbeitsverzeichniss in den gefundenen Pfad:
-    os.chdir(path)
+    os.chdir(data_path)
 
     # Erstellen einer Liste mit den csv Dateien und erste Auswertungen
-    file_get = [file for file in os.listdir(path)]
+    file_get = [file for file in os.listdir(data_path)]
 
     df0 = pd.read_csv(file_get[0])
-
+    os.chdir(path)
     return df0
 
 # Dieser Block läuft nur, wenn die Datei DIREKT gestartet wird (z.B. zum Testen),

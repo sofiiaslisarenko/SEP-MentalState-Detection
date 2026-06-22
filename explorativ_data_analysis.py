@@ -4,13 +4,14 @@ import matplotlib.pyplot as plt     #Zusammen mit seaborn zum erstellen von Grap
 import re                           #Für Regex Operationen
 import seaborn as sns
 
-path = os.getcwd()
-output_path = os.path.join(path, "Output")
 # Sebastians Explorative Daten analyse:
 def expl_data(df0 : pd.DataFrame):
     """Graphische Darstellung der Daten zum Visuellen analysieren."""
 
     # ändere den path auf den outputfolder:
+    
+    path = os.getcwd()
+    output_path = os.path.join(path, "Output")
     os.chdir(output_path)
 
     #BoW u token per message...
@@ -234,4 +235,5 @@ def expl_data(df0 : pd.DataFrame):
     df_results = pd.DataFrame(data_stored, index=data_stored_names)
     df_results.to_csv('analysis_results.csv')
 
-    #return df0[]
+    os.chdir(path)
+    return df0
