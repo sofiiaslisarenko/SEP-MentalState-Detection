@@ -12,6 +12,8 @@ from data_clean import clean_data
 from feature_builder import create_all_features
 from sklearn.feature_extraction.text import TfidfVectorizer
 from scipy.sparse import hstack, csr_matrix
+from aufteilung_trainings_testdaten import train_testdaten_split
+
 
 # ============================================================
 # DATEN LADEN & ECHTE FEATURES BERECHNEN (Hier war vorher np.random)
@@ -19,30 +21,6 @@ from scipy.sparse import hstack, csr_matrix
 df0 = clean_data()
 
 df0, all_target_words = create_all_features(df0)
-
-df0['sleep_words'] = df0['statement'].str.lower().str.count(
-    r'\bsleep\b|\binsomnia\b|\bnight\b|\btired\b|\bawake\b'
-)
-
-
-# ============================================================
-# TRAIN/TEST SPLIT FUNKTION
-# Behält alle Spalten von df0, nicht nur statement/status.
-# ============================================================
-def train_testdaten_split(df0 : pd.DataFrame):
-    """Teilt df0 in Trainings- und Testdaten auf, behält dabei alle Spalten."""
-    train_df, test_df = train_test_split(
-        df0,
-        test_size=0.2,
-        random_state=42,
-        stratify=df0['status']
-    )
-
-    print(f"Trainingsdaten: {len(train_df)} Einträge")
-    print(f"Testdaten: {len(test_df)} Einträge")
-
-    return train_df, test_df
-
 
 # ============================================================
 # SPLIT & DYNAMISCHE FEATURE-LISTE
@@ -62,10 +40,7 @@ macro_features = [
     'sleep_words'
 ]
 
-
-
 word_frequency_features = [col for col in df0.columns if col.startswith('freq_')]
-
 
 feature_cols = macro_features + word_frequency_features
 
