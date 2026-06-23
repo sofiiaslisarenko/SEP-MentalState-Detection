@@ -9,7 +9,9 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 
 from data_clean import clean_data
-from feature_builder import create_all_features 
+from feature_builder import create_all_features
+from sklearn.feature_extraction.text import TfidfVectorizer
+from scipy.sparse import hstack, csr_matrix
 
 # ============================================================
 # DATEN LADEN & ECHTE FEATURES BERECHNEN (Hier war vorher np.random)
@@ -69,25 +71,37 @@ feature_cols = macro_features + word_frequency_features
 
 print(f"Das Modell hat jetzt {len(feature_cols)} Features")
 
+
 X_train = train_df[feature_cols]
 y_train = train_df['status']
 X_test = test_df[feature_cols]
 y_test = test_df['status']
-
+# ============================================================
+# TF-IDF AUS DEM STATEMENT-TEXT
+# ============================================================
+tfidf = TfidfVectorizer(max_features=5000, stop_words='english')
+X_train_tfidf = tfidf.fit_transform(train_df['statement'])
+X_test_tfidf = tfidf.transform(test_df['statement'])
 
 # ============================================================
-# SKALIERUNG
+# SKALIERUNG DER NUMERISCHEN FEATURES
 # ============================================================
 scaler = StandardScaler()
-X_train_scaled = scaler.fit_transform(X_train)
-X_test_scaled = scaler.transform(X_test)
+X_train_num = scaler.fit_transform(X_train)
+X_test_num = scaler.transform(X_test)
+
+# ============================================================
+# KOMBINIEREN: NUMERISCHE FEATURES + TF-IDF
+# ============================================================
+X_train_combined = hstack([csr_matrix(X_train_num), X_train_tfidf])
+X_test_combined = hstack([csr_matrix(X_test_num), X_test_tfidf])
 
 # ============================================================
 # MODELL 1: LOGISTIC REGRESSION
 # ============================================================
-model_lr = LogisticRegression(max_iter=1000, random_state=42)
-model_lr.fit(X_train_scaled, y_train)
-y_pred_lr = model_lr.predict(X_test_scaled)
+model_lr = LogisticRegression(max_iter=1000, random_state=42, class_weight='balanced')
+model_lr.fit(X_train_combined, y_train)
+y_pred_lr = model_lr.predict(X_test_combined)
 
 print("===== Logistic Regression =====")
 print(classification_report(y_test, y_pred_lr))
@@ -96,18 +110,30 @@ print(classification_report(y_test, y_pred_lr))
 # MODELL 2: SVM
 # ============================================================
 model_svm = SVC(kernel="rbf", random_state=42)
-model_svm.fit(X_train_scaled, y_train)
-y_pred_svm = model_svm.predict(X_test_scaled)
+model_svm.fit(X_train_combined, y_train)
+y_pred_svm = model_svm.predict(X_test_combined)
 
 print("===== SVM =====")
 print(classification_report(y_test, y_pred_svm))
 
 # ============================================================
-# VISUALISIERUNG: CONFUSION MATRIX FÜR BEIDE MODELLE
+# MODELL 3: RANDOM FOREST
+# ============================================================
+from sklearn.ensemble import RandomForestClassifier
+
+model_rf = RandomForestClassifier(n_estimators=100, random_state=42)
+model_rf.fit(X_train_combined, y_train)
+y_pred_rf = model_rf.predict(X_test_combined)
+
+print("===== Random Forest =====")
+print(classification_report(y_test, y_pred_rf))
+
+# ============================================================
+# VISUALISIERUNG: CONFUSION MATRIX FÜR ALLE 3 MODELLE
 # ============================================================
 status_labels = sorted(df0['status'].unique())
 
-fig, axes = plt.subplots(1, 2, figsize=(14, 6))
+fig, axes = plt.subplots(1, 3, figsize=(20, 6))
 
 sns.heatmap(confusion_matrix(y_test, y_pred_lr, labels=status_labels), annot=True, fmt="d",
             ax=axes[0], cmap="Blues", xticklabels=status_labels, yticklabels=status_labels)
@@ -122,6 +148,13 @@ axes[1].set_title("SVM")
 axes[1].set_xlabel("Vorhergesagt")
 axes[1].set_ylabel("Tatsächlich")
 axes[1].tick_params(axis='x', rotation=45)
+
+sns.heatmap(confusion_matrix(y_test, y_pred_rf, labels=status_labels), annot=True, fmt="d",
+            ax=axes[2], cmap="Blues", xticklabels=status_labels, yticklabels=status_labels)
+axes[2].set_title("Random Forest")
+axes[2].set_xlabel("Vorhergesagt")
+axes[2].set_ylabel("Tatsächlich")
+axes[2].tick_params(axis='x', rotation=45)
 
 plt.tight_layout()
 plt.savefig("model_comparison_confusion_matrix.png")
