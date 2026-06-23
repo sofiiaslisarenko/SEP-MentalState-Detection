@@ -7,30 +7,28 @@ from sklearn.svm import SVC
 from sklearn.metrics import classification_report, confusion_matrix
 import matplotlib.pyplot as plt
 import seaborn as sns
+
 from data_clean import clean_data
+from feature_builder import create_all_features 
+
+# ============================================================
+# DATEN LADEN & ECHTE FEATURES BERECHNEN (Hier war vorher np.random)
+# ============================================================
+df0 = clean_data()
+
+df0, all_target_words = create_all_features(df0)
+
+df0['sleep_words'] = df0['statement'].str.lower().str.count(
+    r'\bsleep\b|\binsomnia\b|\bnight\b|\btired\b|\bawake\b'
+)
+
+
 # ============================================================
 # TRAIN/TEST SPLIT FUNKTION
 # Behält alle Spalten von df0, nicht nur statement/status.
 # ============================================================
-df0 = clean_data()
-df0['word_count'] = np.random.randint(1, 500, len(df0))
-df0['absolutist_ratio'] = np.random.rand(len(df0))
-df0['pronoun_dominance'] = np.random.uniform(-1, 1, len(df0))
-
-# Echte Feature-Berechnung (nicht Platzhalter):
-df0['sleep_words'] = df0['statement'].str.lower().str.count(
-    r'\bsleep\b|\binsomnia\b|\bnight\b|\btired\b|\bawake\b'
-)
-def train_testdaten_split(df0):
-    """Teilt df0 in Trainings- und Testdaten auf, behält dabei alle Spalten.
-
-    Args:
-        df0 (pd.DataFrame): Der bereinigte Datensatz mit den Spalten
-            'statement' und 'status'.
-
-    Returns:
-        tuple[pd.DataFrame, pd.DataFrame]: train_df und test_df.
-    """
+def train_testdaten_split(df0 : pd.DataFrame):
+    """Teilt df0 in Trainings- und Testdaten auf, behält dabei alle Spalten."""
     train_df, test_df = train_test_split(
         df0,
         test_size=0.2,
@@ -45,38 +43,40 @@ def train_testdaten_split(df0):
 
 
 # ============================================================
-# DATEN LADEN
-# ============================================================
-#df0 = clean_data()
-
-# ------------------------------------------------------------
-# PLATZHALTER-FEATURES
-# Sobald die finalen Features vom Team feststehen, diesen Block
-# durch echte Berechnungen/Merges ersetzen.
-# ------------------------------------------------------------
-np.random.seed(42)
-df0['word_count'] = np.random.randint(1, 500, len(df0))
-df0['absolutist_ratio'] = np.random.rand(len(df0))
-df0['pronoun_dominance'] = np.random.uniform(-1, 1, len(df0))
-# df0['sleep_words'] -> bereits vorhanden, falls schon berechnet
-
-# ============================================================
-# SPLIT
+# SPLIT & DYNAMISCHE FEATURE-LISTE
 # ============================================================
 train_df, test_df = train_testdaten_split(df0)
 
-feature_cols = ['word_count', 'absolutist_ratio', 'pronoun_dominance', 'sleep_words']
+# Makro Features + das Team-Feature
+macro_features = [
+    'word_count', 
+    'pronoun_dominance', 
+    'absolutist_ratio', 
+    'absolute_uncertain_ratio', 
+    'time_focus_score',
+    'question_marks_count',
+    'ellipses_count',
+    'exclamation_marks_count', 
+    'sleep_words'
+]
+
+
+
+word_frequency_features = [col for col in df0.columns if col.startswith('freq_')]
+
+
+feature_cols = macro_features + word_frequency_features
+
+print(f"Das Modell hat jetzt {len(feature_cols)} Features")
 
 X_train = train_df[feature_cols]
 y_train = train_df['status']
 X_test = test_df[feature_cols]
 y_test = test_df['status']
 
+
 # ============================================================
 # SKALIERUNG
-# Logistic Regression und SVM sind distanz-/gradientenbasiert,
-# daher müssen die Features auf eine vergleichbare Skala gebracht werden.
-# WICHTIG: fit() nur auf den Trainingsdaten, sonst Data Leakage!
 # ============================================================
 scaler = StandardScaler()
 X_train_scaled = scaler.fit_transform(X_train)

@@ -405,7 +405,7 @@ def pronouns(df0:pd.DataFrame):
     path = os.getcwd()
     output_path = os.path.join(path, "Output")
     os.chdir(output_path)
-    min_statement_len = 100 #!!!!ACHTUNG aktuell werden nur statements mit dieser Anzahl genommen und alle anderen aussortiert!!!!
+    min_statement_len = 50 #!!!!ACHTUNG aktuell werden nur statements mit dieser Anzahl genommen und alle anderen aussortiert!!!!
     
     self_pronouns = r'(?i)\b(we|us|ourselves|i|me|mine|myself|my)\b'
     other_pronouns = r'(?i)\b(you|your|yours|yourself|yourselves|he|she|her|hers|herself|him|his|himself|they|them|their|theirs|themselves|thyself|thine)\b'
