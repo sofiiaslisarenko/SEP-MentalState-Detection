@@ -1,7 +1,7 @@
-from data_clean import clean_data
+# from data_clean import clean_data
 
 
-df0 = clean_data()
+# df0 = clean_data()
 from sklearn.model_selection import train_test_split
 import pandas as pd
 

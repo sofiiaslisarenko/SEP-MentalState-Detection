@@ -246,11 +246,16 @@ def expl_data(df0 : pd.DataFrame):
 # ----------------------------------------------------------------------------------------------------
 
 
-def absolute_uncertain(df0 : pd.DataFrame):
+def absolute_uncertain(df0 : pd.DataFrame, statement_len_filter = 0):
+    """
+    absolutist uncertain und negative wörter werden pro statement gezählt und als durchschnitt pro Gruppe ausgegeben und als Tabelle ausgegeben.
+    \nstatement_len_filter sortiert alle statements aus, deren wörter länge kleiner als der übergebene int ist. (Default = 0)
+    \nreturnt ein dict.
+    """
     path = os.getcwd()
     output_path = os.path.join(path, "Output")
     os.chdir(output_path)
-    min_statement_len = 50 #!!!!ACHTUNG aktuell werden nur statements mit dieser Anzahl genommen und alle anderen aussortiert!!!!
+    min_statement_len = statement_len_filter #!!!!ACHTUNG aktuell werden nur statements mit dieser Anzahl genommen und alle anderen aussortiert!!!!
     df0['word_count'] = df0["statement"].str.split().str.len()
     words_over = df0['word_count'] > min_statement_len
     df0 = df0[words_over]
@@ -331,10 +336,10 @@ def absolute_uncertain(df0 : pd.DataFrame):
                         "weird","can't"]
     negative_words = ["die", "kill", "pain", "hurt", "cry", "sad", "alone", "lonely", "hate",
                        "bad", "tired", "worse", "hopeless", "empty", "scared","disturbed","nuts",
-                       "dead","psycho","mad","insane","freak","scary","stress","embarrassed","embarrassing",
+                       "dead","psycho","mad","insane","freak","scary","stressed","stress","embarrassed","embarrassing",
                        "frustrating","frustrated","isolated","isolation","isolating","mental","ill",
-                        "brain","forced","demand","abuse","sexual","sex","life"]
-
+                        "brain","forced","demand","abuse","sexual","sex","life","meds","medications","medication"]
+    
     # Hilfsfunktion: Zählt die Wörter einer Liste, bildet den Durchschnitt und berechnet den Z-Score
     def get_z_score_df(word_list):
         counts = {}
@@ -343,7 +348,7 @@ def absolute_uncertain(df0 : pd.DataFrame):
             counts[word] = df0['statement'].str.count(pattern).groupby(df0['status']).mean().to_dict()
         
         df = pd.DataFrame(counts)
-        print(df)
+        df.to_json("word_frequency.json")
         # Z-Score Standardisierung. .fillna(0) verhindert Fehler, falls ein Wort zufällig 0 mal vorkommt.
         df_z = ((df - df.mean()) / df.std()).fillna(0)
         return df_z
@@ -390,8 +395,11 @@ def absolute_uncertain(df0 : pd.DataFrame):
         df = pd.DataFrame(counts)
         return df
     df_abs = get_df(absolutist_words)
+    print(df_abs)
     df_unc = get_z_score_df(uncertain_words)
+    print(df_unc)
     df_neg = get_z_score_df(negative_words)
+    print(df_neg)
     df_con =  pd.concat([df_abs,df_neg,df_unc],axis=1)
     os.chdir(path)
     return df_con
@@ -401,13 +409,18 @@ def absolute_uncertain(df0 : pd.DataFrame):
 #----------------------------------------------------------------------------------------------------
 
 
-def pronouns(df0:pd.DataFrame):
+def pronouns(df0:pd.DataFrame, statement_len_filter = 0):
+    """
+    gibt die durchschnittliche vorkommens häufigkeit von verschiedenen Pronomen an und aus, sowie eine Tabelle dazu.
+    benötigt einen DataFrame als übergabe parameter.
+    \nstatement_len_filter sortiert alle statements aus, deren wörter länge kleiner als der übergebene int ist. (Default = 0)
+    """
     path = os.getcwd()
     output_path = os.path.join(path, "Output")
     os.chdir(output_path)
-    min_statement_len = 50 #!!!!ACHTUNG aktuell werden nur statements mit dieser Anzahl genommen und alle anderen aussortiert!!!!
+    min_statement_len = statement_len_filter #!!!!ACHTUNG aktuell werden nur statements mit dieser Anzahl genommen und alle anderen aussortiert!!!!
     
-    self_pronouns = r'(?i)\b(we|us|ourselves|i|me|mine|myself|my)\b'
+    self_pronouns = r'(?i)\b(we|us|ourself|ourselves|i|me|mine|myself|my)\b'
     other_pronouns = r'(?i)\b(you|your|yours|yourself|yourselves|he|she|her|hers|herself|him|his|himself|they|them|their|theirs|themselves|thyself|thine)\b'
 
 
@@ -431,7 +444,7 @@ def pronouns(df0:pd.DataFrame):
     df0['dif_pronouns'] = df0['self_pronouns_count'] - df0['other_pronouns_count']
     
 
-    self_pr = ["we", "us", "ourself", "i", "me", "mine", "myself", "my", "i'll", "we'll", "i'm"]
+    self_pr = ["we", "us", "ourself","ourselves", "i", "me", "mine", "myself", "my", "i'll", "we'll", "i'm"]
     other_pr = ["you", "your", "yours", "yourself", "she", "her", "hers", "herself", "he", "him", "his", "himself", "they", "them", "their", "themselves","themself"]
 
     counter_self = {}

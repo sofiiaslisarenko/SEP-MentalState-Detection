@@ -2,7 +2,7 @@ import pandas as pd
 import re
 
 def create_all_features(df0: pd.DataFrame) -> pd.DataFrame:
-    """Berechnet Makro-Metriken und Token-Frequenzen für jedes einzelne Ziel-Wort."""
+    """Berechnet Makro-Metriken und Token-Frequenzen für jedes einzelne Ziel-Wort um sie als einen gesammelten DataFrame weiter zu geben."""
     
     # 1. Wortanzahl (Verhindert Division durch 0, indem 0 zu 1 wird)
     df0['word_count'] = df0["statement"].str.split().str.len().replace(0, 1)
@@ -17,6 +17,11 @@ def create_all_features(df0: pd.DataFrame) -> pd.DataFrame:
     past_words = r'(?i)\b(was|were|had|did|been|could|said|went|ago|last|got|wanted|used|liked)\b'
     future_words = r"(?i)\b(will|shall|going to|might|worry|worried|anxious|'ll)\b"
     
+    # Schlaf-bezogene Wörter (Feature von Sofiia)
+    df0['sleep_words'] = df0['statement'].str.lower().str.count(
+        r'\bsleep\b|\binsomnia\b|\bnight\b|\btired\b|\bawake\b'
+    )
+
     df0['self_pronouns_count'] = df0["statement"].str.count(self_pronouns)
     df0['other_pronouns_count'] = df0["statement"].str.count(other_pronouns)
     df0['all_pronouns_count'] = df0['self_pronouns_count'] + df0['other_pronouns_count']
@@ -38,14 +43,15 @@ def create_all_features(df0: pd.DataFrame) -> pd.DataFrame:
     df0['question_marks_count'] = df0["statement"].str.count(r'\?')
     df0['ellipses_count'] = df0["statement"].str.count(r'\.\.\.')
     df0['exclamation_marks_count'] = df0["statement"].str.count(r'\!')
-    
+    print(df0.head())
+    df0.info()
     self_pr_list = ["we", "us", "ourself", "i", "me", "mine", "myself", "my", "i'll", "we'll", "i'm"]
     other_pr_list = ["you", "your", "yours", "yourself", "yourselves", "he", "she", "her", "hers", "herself", "him", "his", "himself", "they", "them", "their", "their's", "themselves"]
     
   
     absolutist_words = ["always", "never", "completely", "nothing", "everything", "all", "ever", "everyone", "i know", "constantly", "every", "full", "done", "finish", "end"]
     uncertain_words = ["maybe", "might", "could", "i think", "not sure", "weird", "can't"]
-    negative_words = ["die", "kill", "pain", "hurt", "cry", "sad", "alone", "lonely", "hate", "bad", "tired", "worse", "hopeless", "empty", "scared", "disturbed", "nuts", "dead", "psycho", "mad", "insane", "freak", "scary", "stress", "embarrassed", "embarrassing", "frustrating", "frustrated", "isolated", "isolation", "isolating", "mental", "ill", "brain", "forced", "demand", "abuse", "sexual", "sex", "life"]
+    negative_words = ["die", "kill", "pain", "hurt", "cry", "sad", "alone", "lonely", "hate", "bad", "tired", "worse", "hopeless", "empty", "scared", "disturbed", "nuts", "dead", "psycho", "mad", "insane", "freak", "scary", "stress", "embarrassed", "embarrassing", "frustrating", "frustrated", "isolated", "isolation", "isolating", "mental", "ill", "brain", "forced", "demand", "abuse", "sexual", "sex", "life","meds","medications","medication"]
 
     all_target_words = self_pr_list + other_pr_list + absolutist_words + uncertain_words + negative_words
 
@@ -64,5 +70,5 @@ def create_all_features(df0: pd.DataFrame) -> pd.DataFrame:
     # 2. EINMALIGES JOINEN (Das löst die Fragmentierung)
     df_new_features = pd.DataFrame(new_features)
     df0 = pd.concat([df0, df_new_features], axis=1)
-    
+    df0.info()
     return df0.fillna(0), list(seen_features)

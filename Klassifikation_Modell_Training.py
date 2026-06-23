@@ -1,6 +1,6 @@
 import pandas as pd
 import numpy as np
-from sklearn.model_selection import train_test_split
+#from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
 from sklearn.linear_model import LogisticRegression
 from sklearn.svm import SVC
@@ -84,19 +84,19 @@ print(classification_report(y_test, y_pred_lr))
 # ============================================================
 # MODELL 2: SVM
 # ============================================================
-model_svm = SVC(kernel="rbf", random_state=42)
-model_svm.fit(X_train_combined, y_train)
-y_pred_svm = model_svm.predict(X_test_combined)
+# model_svm = SVC(kernel="rbf", random_state=42)
+# model_svm.fit(X_train_combined, y_train)
+# y_pred_svm = model_svm.predict(X_test_combined)
 
-print("===== SVM =====")
-print(classification_report(y_test, y_pred_svm))
+# print("===== SVM =====")
+# print(classification_report(y_test, y_pred_svm))
 
 # ============================================================
 # MODELL 3: RANDOM FOREST
 # ============================================================
 from sklearn.ensemble import RandomForestClassifier
 
-model_rf = RandomForestClassifier(n_estimators=100, random_state=42)
+model_rf = RandomForestClassifier(n_estimators=100, random_state=42,n_jobs=-1)
 model_rf.fit(X_train_combined, y_train)
 y_pred_rf = model_rf.predict(X_test_combined)
 
@@ -108,7 +108,7 @@ print(classification_report(y_test, y_pred_rf))
 # ============================================================
 status_labels = sorted(df0['status'].unique())
 
-fig, axes = plt.subplots(1, 3, figsize=(20, 6))
+fig, axes = plt.subplots(1, 2, figsize=(20, 6))
 
 sns.heatmap(confusion_matrix(y_test, y_pred_lr, labels=status_labels), annot=True, fmt="d",
             ax=axes[0], cmap="Blues", xticklabels=status_labels, yticklabels=status_labels)
@@ -117,19 +117,19 @@ axes[0].set_xlabel("Vorhergesagt")
 axes[0].set_ylabel("Tatsächlich")
 axes[0].tick_params(axis='x', rotation=45)
 
-sns.heatmap(confusion_matrix(y_test, y_pred_svm, labels=status_labels), annot=True, fmt="d",
+# sns.heatmap(confusion_matrix(y_test, y_pred_svm, labels=status_labels), annot=True, fmt="d",
+#             ax=axes[1], cmap="Blues", xticklabels=status_labels, yticklabels=status_labels)
+# axes[1].set_title("SVM")
+# axes[1].set_xlabel("Vorhergesagt")
+# axes[1].set_ylabel("Tatsächlich")
+# axes[1].tick_params(axis='x', rotation=45)
+
+sns.heatmap(confusion_matrix(y_test, y_pred_rf, labels=status_labels), annot=True, fmt="d",
             ax=axes[1], cmap="Blues", xticklabels=status_labels, yticklabels=status_labels)
-axes[1].set_title("SVM")
+axes[1].set_title("Random Forest")
 axes[1].set_xlabel("Vorhergesagt")
 axes[1].set_ylabel("Tatsächlich")
 axes[1].tick_params(axis='x', rotation=45)
-
-sns.heatmap(confusion_matrix(y_test, y_pred_rf, labels=status_labels), annot=True, fmt="d",
-            ax=axes[2], cmap="Blues", xticklabels=status_labels, yticklabels=status_labels)
-axes[2].set_title("Random Forest")
-axes[2].set_xlabel("Vorhergesagt")
-axes[2].set_ylabel("Tatsächlich")
-axes[2].tick_params(axis='x', rotation=45)
 
 plt.tight_layout()
 plt.savefig("model_comparison_confusion_matrix.png")
