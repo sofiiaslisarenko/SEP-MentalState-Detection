@@ -30,10 +30,18 @@ train_df, test_df = train_testdaten_split(df0)
 # Makro Features + das Team-Feature
 macro_features = [
     'word_count', 
-    'pronoun_dominance', 
-    'absolutist_ratio', 
-    'absolute_uncertain_ratio', 
-    'time_focus_score',
+    #'pronoun_dominance', 
+    #'absolutist_ratio', 
+    #'absolute_uncertain_ratio', 
+    #'time_focus_score',
+    #'future_count',
+    #'past_count',
+    'self_pronouns_count',
+    'first_pl_pr_count',
+    'second_pronouns_count',
+    'third_pr_count',
+    'other_pl_pr_count',
+    'self_pr_other_count',
     'question_marks_count',
     'ellipses_count',
     'exclamation_marks_count', 
@@ -54,7 +62,7 @@ y_test = test_df['status']
 # ============================================================
 # TF-IDF AUS DEM STATEMENT-TEXT
 # ============================================================
-tfidf = TfidfVectorizer(max_features=5000, stop_words='english')
+tfidf = TfidfVectorizer(max_features=5000, stop_words='english',min_df = 3, max_df=0.7)
 X_train_tfidf = tfidf.fit_transform(train_df['statement'])
 X_test_tfidf = tfidf.transform(test_df['statement'])
 
@@ -64,6 +72,10 @@ X_test_tfidf = tfidf.transform(test_df['statement'])
 scaler = StandardScaler()
 X_train_num = scaler.fit_transform(X_train)
 X_test_num = scaler.transform(X_test)
+gewichtungs_faktor = 2
+
+X_train_num *= gewichtungs_faktor
+X_test_num *= gewichtungs_faktor
 
 # ============================================================
 # KOMBINIEREN: NUMERISCHE FEATURES + TF-IDF
@@ -74,7 +86,12 @@ X_test_combined = hstack([csr_matrix(X_test_num), X_test_tfidf])
 # ============================================================
 # MODELL 1: LOGISTIC REGRESSION
 # ============================================================
-model_lr = LogisticRegression(max_iter=1000, random_state=42, class_weight='balanced')
+
+#===== GridSearchCV Ergebnisse =====
+# Beste Parameter gefunden: {'C': 10.0, 'class_weight': None, 'solver': 'lbfgs'}
+# Bester F1-Macro Score im Training: 0.7276
+
+model_lr = LogisticRegression(max_iter=2000, C = 10, class_weight="balanced", solver = 'lbfgs')
 model_lr.fit(X_train_combined, y_train)
 y_pred_lr = model_lr.predict(X_test_combined)
 
