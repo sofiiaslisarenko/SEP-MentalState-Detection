@@ -539,3 +539,60 @@ def pronouns(df0:pd.DataFrame, statement_len_filter = 0):
     os.chdir(path)
     print(df_all_counts.head())
     return df_all_counts
+
+def depr_vs_suic(df0 : pd.DataFrame):
+    from sklearn.feature_extraction.text import TfidfVectorizer
+    import numpy as np
+    df = df0[df0['status'].isin(["Suicidal", "Depression"])].reset_index(drop=True)
+    tfidf = TfidfVectorizer(max_features=5000, stop_words='english')
+    X_train_tfidf = tfidf.fit_transform(df['statement'])
+    feature_names = tfidf.get_feature_names_out()
+    suicidal_idx = df.index[df['status'] == 'Suicidal'].tolist()
+    depression_idx = df.index[df['status'] == 'Depression'].tolist()
+    suicidal_means = np.asarray(X_train_tfidf[suicidal_idx].mean(axis=0)).flatten()
+    depression_means = np.asarray(X_train_tfidf[depression_idx].mean(axis=0)).flatten()
+    word_scores = pd.DataFrame({
+        'word': feature_names,
+        'suicidal_score': suicidal_means,
+        'depression_score': depression_means
+    })
+    word_scores['diff'] = word_scores['suicidal_score'] - word_scores['depression_score']
+    top_suicidal_words = word_scores.sort_values(by='diff', ascending=False).head(20)
+    top_depression_words = word_scores.sort_values(by='diff', ascending=True).head(20)
+    filtered = pd.concat([top_suicidal_words, top_depression_words], axis=0)
+    fig = plt.figure(figsize=(16,9))
+    sns.set_style("whitegrid")
+    ax = sns.scatterplot(
+        data=filtered, 
+        x="depression_score", 
+        y="suicidal_score", 
+        hue="diff", 
+        palette="coolwarm", 
+        s=120,
+        edgecolor='w',
+        linewidth=1
+    )
+    for i in range(filtered.shape[0]):
+        ax.text(
+            filtered.iloc[i]['depression_score'] + 0.001, # slightly shift text to the right
+            filtered.iloc[i]['suicidal_score'], 
+            filtered.iloc[i]['word'], 
+            horizontalalignment='left', 
+            size='medium', 
+            color='black', 
+            weight='semibold'
+        )
+    
+    # Add a diagonal reference line (where suicidal_score == depression_score)
+    max_val = max(filtered['depression_score'].max(), filtered['suicidal_score'].max())
+    ax.plot([0, max_val], [0, max_val], color='gray', linestyle='--', alpha=0.5)
+    
+    # Title and Labels
+    ax.set_title("Distinguishing Words: Suicidal vs. Depression TF-IDF Scores", fontsize=14, pad=15)
+    ax.set_xlabel("Depression Score (Mean TF-IDF)", fontsize=12)
+    ax.set_ylabel("Suicidal Score (Mean TF-IDF)", fontsize=12)
+    
+    # Save the chart safely
+    plt.savefig("suic_vs_depr.png", bbox_inches='tight')
+    
+    return top_suicidal_words, top_depression_words

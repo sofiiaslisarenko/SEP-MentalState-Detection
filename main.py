@@ -24,6 +24,6 @@ def expl_data():
     #df0, all_target_words = fb.create_all_features(df0)
     #KMT.train_testdaten_split(df0)
     #eda.pronouns(df0)
-    eda.absolute_uncertain(df0,50)
+    print(eda.depr_vs_suic(df0))
 
 expl_data()

@@ -49,9 +49,9 @@ def create_all_features(df0: pd.DataFrame) -> pd.DataFrame:
     other_pr_list = ["you", "your", "yours", "yourself", "yourselves", "he", "she", "her", "hers", "herself", "him", "his", "himself", "they", "them", "their", "their's", "themselves"]
     
   
-    absolutist_words = ["always", "never", "completely", "nothing", "everything", "all", "ever", "everyone", "i know", "constantly", "every", "full", "done", "finish", "end"]
-    uncertain_words = ["maybe", "might", "could", "i think", "not sure", "weird", "can't"]
-    negative_words = ["die", "kill", "pain", "hurt", "cry", "sad", "alone", "lonely", "hate", "bad", "tired", "worse", "hopeless", "empty", "scared", "disturbed", "nuts", "dead", "psycho", "mad", "insane", "freak", "scary", "stress", "embarrassed", "embarrassing", "frustrating", "frustrated", "isolated", "isolation", "isolating", "mental", "ill", "brain", "forced", "demand", "abuse", "sexual", "sex", "life","meds","medications","medication"]
+    absolutist_words = ["always","anymore","want", "never", "completely", "nothing", "everything", "all", "ever", "everyone", "i know", "constantly", "every", "full", "done", "finish", "end"]
+    uncertain_words = ["maybe","don't", "might", "could", "i think", "not sure", "weird", "can't", "feel"]
+    negative_words = ["depression","work","school","fucking","die", "kill", "suicide","pain", "hurt", "cry", "sad", "alone", "lonely", "hate", "bad", "tired", "worse", "hopeless", "empty", "scared", "disturbed", "nuts", "dead", "psycho", "mad", "insane", "freak", "scary", "stress", "embarrassed", "embarrassing", "frustrating", "frustrated", "isolated", "isolation", "isolating", "mental", "ill", "brain", "forced", "demand", "abuse", "sexual", "sex", "life","meds","medications","medication"]
 
     all_target_words = self_pr_list + other_pr_list + absolutist_words + uncertain_words + negative_words
 
