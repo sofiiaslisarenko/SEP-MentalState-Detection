@@ -38,32 +38,29 @@ def build_class_docs(df):
 
 # GENERELLE TF-IDF-MATRIX (STOPPWÖRTER ENTFERNT)
 
-def tfidf_matrix_eda(df,stop_words):
-    """Berechnet eine TF-IDF-Matrix auf Klassenebene.
+def tfidf_matrix_eda(df: pd.DataFrame, stop_words: set | None = None, ngram: int = 1) -> tuple:
+    """
+    Berechnet eine TF-IDF-Matrix auf Klassenebene (optional mit n-Grammen).
 
-        Fügt pro Klasse alle Statements zu einem Dokument zusammen (über
-        build_class_docs) und berechnet daraus eine TF-IDF-Matrix. Dadurch
-        lassen sich die für jede Klasse typischsten Wörter bestimmen.
+    Fügt pro Klasse alle Statements zu einem Dokument zusammen (über
+    build_class_docs) und berechnet daraus eine TF-IDF-Matrix. Dadurch
+    lassen sich die für jede Klasse typischsten Wörter bzw. Phrasen bestimmen.
 
-        Args:
-            df (pd.DataFrame): Datensatz mit den Spalten 'statement' und 'status'.
-            stop_words_nltk (set | list): Stopwörter, die vor dem Vektorisieren
-                entfernt werden (z.B. NLTK-Stopwortliste).
-
-        Returns:
-            tuple:
-                - tfidf_matrix (scipy.sparse): Matrix der Form (n_klassen, n_woerter).
-                - classes (list): Klassennamen; classes[i] gehört zu Zeile i.
-                - feature_names (np.ndarray): Wörter; Index entspricht Spalte der Matrix.
-        """
+    Bei ngram == 1 werden Unigramme mit Stopwortfilterung berechnet.
+    Bei ngram > 1 werden ausschließlich n-Gramme der entsprechenden Länge
+    ohne Stopwortfilterung berechnet (stop_words=None), damit Phrasen wie
+    'do not want' erhalten bleiben.
+    """
     # Pro Klasse alle Statements zu einem großen String zusammenfügen
     # -> ein "Dokument" pro Klasse
     class_doc = build_class_docs(df)
 
     # TfidfVectorizer wandelt die Texte in eine TF-IDF-Zahlenmatrix um;
     # stop_words entfernt die übergebenen Stopwörter vor dem Aufbau des Vokabulars.
-    vectorizer = TfidfVectorizer(stop_words=list(stop_words_nltk))
-
+    if ngram == 1:
+        vectorizer = TfidfVectorizer(stop_words=stop_words)
+    else:
+        vectorizer = TfidfVectorizer(stop_words=None, ngram_range=(ngram, ngram))
     # fit:       lernt das Vokabular aus den Klassen-Dokumenten
     # transform: wandelt die Texte in die TF-IDF-Matrix um (beides in einem Schritt)
     # Ergebnis:  sparse matrix der Form (n_klassen, n_woerter)
@@ -106,7 +103,7 @@ def print_top_words(df, stop_words, n=10):
         print(f"--------------------- Top-Wörter in der Klasse {klasse} ---------------------")
         print(woerter)
 
-# Ertstellen von Liste der zusätzlichen Wörten, die ignoriert werden müssen.
+# Erstellen von Liste der zusätzlichen Wörten, die ignoriert werden müssen.
 
 words_per_class = top_words(df0, stop_words_nltk, n=20)
 
@@ -256,4 +253,14 @@ if __name__ == "__main__":
     # Word Clouds pro Klasse (auskommentiert – öffnet 7 Bildfenster)
     #word_clouds_image(df0, stop_words_nltk, ignore_words)
 
-    vergleich_klassen(df0, stop_words_nltk, ignore_words, n=20)
+    #vergleich_klassen(df0, stop_words_nltk, ignore_words, n=20)
+
+    tfidf_matrix_t, classes_t, feature_names_t = tfidf_matrix_eda_bigram(df0)
+
+    for i in range(len(classes_t)):
+        row_t = tfidf_matrix_t[i].toarray().flatten()
+        top = top_n_paare(row_t, feature_names_t, set(), n=10)
+        print(f"--------------------- Top-Bigramme: Klasse {classes_t[i]} ---------------------")
+        for bigram, wert in top:
+            print(f"{wert:.4f}  {bigram}")
+
