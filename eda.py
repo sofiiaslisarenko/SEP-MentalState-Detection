@@ -1,19 +1,22 @@
 from data_clean import clean_data
+from aufteilung_trainings_testdaten import train_testdaten_split
 import matplotlib.pyplot as plt
 import seaborn as sns
 import pandas as pd
-import numpy as np
 import contractions
 from wordcloud import WordCloud
 import nltk
 from sklearn.feature_extraction.text import TfidfVectorizer
-from collections import Counter, defaultdict
+from collections import Counter
 nltk.download('stopwords')
 from nltk.corpus import stopwords
 stop_words_nltk = set(stopwords.words('english'))
 
 # Importieren des DataFrames
 df0 = clean_data()
+# Auswählen von Trainingsdaten
+# ab hier nur noch die
+df0, _ = train_testdaten_split(df0)
 
 # Normalisieren des Textes
 df0['statement'] = df0['statement'].str.lower()
@@ -36,7 +39,7 @@ def build_class_docs(df):
         class_doc[cl] = text_expanded.str.cat(sep=' ')
     return class_doc
 
-# GENERELLE TF-IDF-MATRIX (STOPPWÖRTER ENTFERNT)
+# TF-IDF-MATRIX ÜBER ALLE 7 KLASSEN (STOPPWÖRTER ENTFERNT)
 
 def tfidf_matrix_eda(df: pd.DataFrame, stop_words: set | None = None, ngram: int = 1) -> tuple:
     """
@@ -58,7 +61,7 @@ def tfidf_matrix_eda(df: pd.DataFrame, stop_words: set | None = None, ngram: int
     # TfidfVectorizer wandelt die Texte in eine TF-IDF-Zahlenmatrix um;
     # stop_words entfernt die übergebenen Stopwörter vor dem Aufbau des Vokabulars.
     if ngram == 1:
-        vectorizer = TfidfVectorizer(stop_words=stop_words)
+        vectorizer = TfidfVectorizer(stop_words=list(stop_words))
     else:
         vectorizer = TfidfVectorizer(stop_words=None, ngram_range=(ngram, ngram))
     # fit:       lernt das Vokabular aus den Klassen-Dokumenten
@@ -76,7 +79,7 @@ def tfidf_matrix_eda(df: pd.DataFrame, stop_words: set | None = None, ngram: int
 
 # TOP-WÖRTER PRO KLASSE (TF-IDF)
 
-def top_words(df, stop_words, n=10):
+def top_ngrams(df: pd.DataFrame, stop_words: set | None = None, n:int = 10, ngram: int = 1) -> dict:
     """Liefert pro Klasse die n Wörter mit dem höchsten TF-IDF-Wert.
 
     Berechnet die TF-IDF-Matrix auf Klassenebene und ermittelt für jede
@@ -85,7 +88,7 @@ def top_words(df, stop_words, n=10):
     Returns:
         dict[str, list[str]]: {Klassenname: [Top-n-Wörter absteigend]}
     """
-    tfidf_matrix, classes, feature_names = tfidf_matrix_eda(df, stop_words)
+    tfidf_matrix, classes, feature_names = tfidf_matrix_eda(df, stop_words, ngram=ngram)
 
     result = {}
     for i in range(len(classes)):
@@ -96,16 +99,16 @@ def top_words(df, stop_words, n=10):
 
     return result
 
-def print_top_words(df, stop_words, n=10):
+def print_top_ngrams(df, stop_words, n=10, ngram: int = 1):
     """Gibt pro Klasse die Top-n Wörter formatiert aus."""
-    words_per_class = top_words(df, stop_words, n)
+    words_per_class = top_ngrams(df, stop_words, n, ngram)
     for klasse, woerter in words_per_class.items():
         print(f"--------------------- Top-Wörter in der Klasse {klasse} ---------------------")
         print(woerter)
 
 # Erstellen von Liste der zusätzlichen Wörten, die ignoriert werden müssen.
 
-words_per_class = top_words(df0, stop_words_nltk, n=20)
+words_per_class = top_ngrams(df0, stop_words_nltk, n=20, ngram=1)
 
 # 1. Alle Top-Wörter aller Klassen.
 alle = []
@@ -166,8 +169,33 @@ def vergleich_klassen(df, stop_words, ignore_words, n=20):
         axes[1].set_xlabel("TF-IDF-Wert")
 
         plt.tight_layout()
-        plt.show()
+        # plt.savefig(f"figures/tfidf_compare/tfidf_compare_{classes[i]}.png")
+        # plt.show()
 
+
+def plot_ngramms(df, stop_words, n=20, ngram: int = 1):
+    """Zeigt pro Klasse ein horizontales Balkendiagramm der Top-n n-Gramme
+    nach TF-IDF-Wert."""
+    tfidf_matrix, classes, feature_names = tfidf_matrix_eda(df, stop_words, ngram)
+
+    for i in range(len(classes)):
+        row = tfidf_matrix[i].toarray().flatten()
+
+        # Top-n Paare (ohne Filter -> leeres set)
+        top = top_n_paare(row, feature_names, set(), n)
+
+        # Wörter/Phrasen und Werte trennen
+        words, vals = zip(*top)
+
+        # ein Diagramm pro Klasse
+        plt.figure(figsize=(10, 8))
+        sns.barplot(x=list(vals), y=list(words), color="lightseagreen")
+        plt.xlabel("TF-IDF-Wert")
+        plt.title(f"Top-{n} {ngram}-Gramme nach TF-IDF – Klasse: {classes[i]}",
+                  fontsize=14, fontweight="bold")
+        plt.tight_layout()
+        # plt.savefig(f"figures/ngramme/{ngram}gramms_{classes[i]}.png")
+        # plt.show()
 
 # ERSTELLEN EINES WORDCLOUDS
 
@@ -202,7 +230,8 @@ def word_clouds_image(df, stop_words, ignore_words):
         plt.imshow(wc, interpolation="bilinear")
         plt.axis("off")
         plt.title(classes[i])
-        plt.show()
+        # plt.savefig(f"figures/word_clouds/WordCloud_{classes[i]}.png")
+        # plt.show()
 
 # Häufigkeitsanalyse einer Einzelklasse (Depression) – Demonstration
 
@@ -243,24 +272,32 @@ if __name__ == "__main__":
     #     print()
     #     print(text[:300])
     #     print()
-
-    # Top-Wörter pro Klasse über TF-IDF
-    #print_top_words(df0, stop_words_nltk)
-
+    #
+    # Top-Wörte pro Klasse über TF-IDF
+    # print_top_ngrams(df0, stop_words_nltk, ngram=1)
+    # Top-Bigramme pro Klasse über TF-IDF
+    # print_top_ngrams(df0, stop_words_nltk, ngram=2)
+    # Top-Trigramme pro Klasse über TF-IDF
+    # print_top_ngrams(df0, stop_words_nltk, ngram=3)
+    # Top-4-Gramme pro Klasse über TF-IDF
+    # print_top_ngrams(df0, stop_words_nltk, ngram=4)
+    #
     # Häufigkeitsanalyse der Klasse Depression (Demonstration)
-    #haeufigkeitsanalyse_depression(df0, stop_words_nltk)
-
+    # haeufigkeitsanalyse_depression(df0, stop_words_nltk)
+    #
     # Word Clouds pro Klasse (auskommentiert – öffnet 7 Bildfenster)
-    #word_clouds_image(df0, stop_words_nltk, ignore_words)
-
-    #vergleich_klassen(df0, stop_words_nltk, ignore_words, n=20)
-
-    tfidf_matrix_t, classes_t, feature_names_t = tfidf_matrix_eda_bigram(df0)
-
-    for i in range(len(classes_t)):
-        row_t = tfidf_matrix_t[i].toarray().flatten()
-        top = top_n_paare(row_t, feature_names_t, set(), n=10)
-        print(f"--------------------- Top-Bigramme: Klasse {classes_t[i]} ---------------------")
-        for bigram, wert in top:
-            print(f"{wert:.4f}  {bigram}")
-
+    # word_clouds_image(df0, stop_words_nltk, ignore_words)
+    #
+    # vergleich_klassen(df0, stop_words_nltk, ignore_words, n=20)
+    #
+    # tfidf_matrix_t, classes_t, feature_names_t = tfidf_matrix_eda(df0, ngram=3)
+    #
+    # for i in range(len(classes_t)):
+    #     row_t = tfidf_matrix_t[i].toarray().flatten()
+    #     top = top_n_paare(row_t, feature_names_t, set(), n=10)
+    #     print(f"--------------------- Top-Bigramme: Klasse {classes_t[i]} ---------------------")
+    #     for bigram, wert in top:
+    #         print(f"{wert:.4f}  {bigram}")
+    #
+    # plot_ngramms(df0, stop_words=stop_words_nltk, n=10, ngram=3)
+    pass
