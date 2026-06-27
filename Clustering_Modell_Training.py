@@ -1,23 +1,12 @@
 from data_clean import clean_data
-
 import pandas as pd
 import numpy as np
-
-#=== Text zur Zahlen ===
 from sklearn.feature_extraction.text import TfidfVectorizer
 from scipy.sparse import csr_matrix
-
-# === Dimensionsreduktion ===
 from sklearn.decomposition import TruncatedSVD, PCA
 from sklearn.preprocessing import normalize
-
-# === Clustering Modelle ===
 from sklearn.cluster import KMeans, DBSCAN, AgglomerativeClustering
-
-# === Bewertung der Modelle ===
 from sklearn.metrics import silhouette_score, davies_bouldin_score
-
-# === Visualisation ===
 import matplotlib.pyplot as plt
 import seaborn as sns
 
@@ -44,7 +33,7 @@ def modelle_testen(X):
     modelle = {
         "KMeans (k=3)": KMeans(n_clusters=3, random_state=42, n_init=10),
         "KMeans (k=5)": KMeans(n_clusters=5, random_state=42, n_init=10),
-        "KMeans (k=7)": KMeans(n_clusters=7, random_state=42, n_init=10),  # ← додай
+        "KMeans (k=7)": KMeans(n_clusters=7, random_state=42, n_init=10),
         "DBSCAN": DBSCAN(eps=0.3, min_samples=10) }
 
     ergebnisse = {}
@@ -93,12 +82,13 @@ def visualisierung(X, labels, modellname):
     plt.xlabel("PCA Komponente 1")
     plt.ylabel("PCA Komponente 2")
     plt.tight_layout()
-    plt.savefig("clustering_ergebnis.png")
+    plt.savefig("figures/clustering_ergebnis.png")
     plt.show()
     plt.close()
     print("Plot gespeichert als clustering_ergebnis.png")
 
 def heatmap_cluster_vs_status(df):
+    """Heatmap der Cluster-Verteilung im Vergleich zu echten Klassen"""
     comparison = df.groupby(['cluster', 'status']).size().unstack(fill_value=0)
     pct = comparison.div(comparison.sum(axis=1), axis=0)
     plt.figure(figsize=(10, 6))
@@ -109,28 +99,20 @@ def heatmap_cluster_vs_status(df):
     plt.ylabel("Cluster")
     plt.xticks(rotation=30, ha='right')
     plt.tight_layout()
-    plt.savefig("cluster_vs_status_heatmap.png")
+    plt.savefig("figures/cluster_vs_status_heatmap.png")
     plt.show()
     plt.close()
 
 if __name__ == "__main__":
-    # 1. Daten laden und bereinigen
     df = clean_data()
-
-    # 2. Text vorbereiten
     X = vorbereitung(df)
-
-    # 3. Modelle testen
     ergebnisse = modelle_testen(X)
-
-    # 4. Bestes Modell auswählen
     if ergebnisse:
         bestes, labels = bestes_modell_waehlen(ergebnisse)
 
-        # 5. Visualisieren
         visualisierung(X, labels, bestes)
 
-        # 6. Labels zum DataFrame hinzufügen
+        # Labels zum DataFrame hinzufügen
         df["cluster"] = labels
         print("\n Cluster vs Echte Klassen:")
         comparison = df.groupby(["cluster", "status"]).size().unstack(fill_value=0)
