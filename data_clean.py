@@ -1,6 +1,9 @@
 from data_loading import load_data_kaggle
 
 # In zwei Funktionen aufgeteilt zum Bereinigen und zur Ausgabe
+
+# TODO: "poll", "https" entfernen
+
 def clean_data():
     df = load_data_kaggle()
 
@@ -14,6 +17,7 @@ def clean_data():
     df["statement"] = df["statement"].apply(remove_non_ascii)  # Entfernt alle Nicht-ASCII-Zeichen
 
     df = df.dropna(subset=['statement', 'status'])
+    df = df.drop(columns=['Unnamed: 0'])
 
     # Entfernung von 13 Spalten mit NAME die leer sind
     df = df[df['statement'] != '#NAME?']
