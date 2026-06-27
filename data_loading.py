@@ -19,7 +19,7 @@ def load_data():
     os.chdir(path)
 
     # Erstellen einer Liste mit den csv Dateien und erste Auswertungen
-    file_get = [file for file in os.listdir(path)]
+    file_get = [file for file in os.listdir(data_path)]
 
     df = pd.read_csv(file_get[0], encoding='utf-8')
 
