@@ -1,8 +1,49 @@
-# SEP-Projekt-Deppressionen
+# SEP-Projekt-Depressionen
 
 
-Datasets used:
+Dataset used:
 
 https://www.kaggle.com/datasets/szegeelim/mental-health/data
 
-https://www.kaggle.com/datasets/nikhileswarkomati/suicide-watch/data
+How to setup:
+Für Windows:
+1. workspace erstellen
+
+2. repositorie clonen
+    git clone https://github.com/sofiiaslisarenko/SEP-Projekt-Deppressionen
+
+3. envoirement erstellen:
+    (Bei PyCharm direkt beim Workspace erstellen)
+    -   Das envoirement dient dazu, das Module per pip nicht "in alle Projekte geladen" werden und so Probleme verursachen.
+        Beispielsweise können Versionskonflikte auftreten (PyTorch und NumPy sind bekannt dafür).
+
+    einfach die setup.bat datai ausführen, dann im CMD Terminal:
+        venv\Scripts\activate
+
+    alternativ manuel im cmd Terminal:
+        python -m venv <your_enovirement_name>   (statt your_enovirement_name einen beliebigen namen wählen)
+        <your_enovirement_name>\Scripts\activate
+        pip install -r requirements.txt
+
+> **Hinweis:** `src/` muss als Sources Root in PyCharm eingestellt werden (Rechtsklick auf `src/` → *Mark Directory as* → *Sources Root*).
+
+## Projektstruktur
+
+```
+SEP_SS26/
+├── Datasets/           # Rohdaten (.csv, wird derzeit nicht benutzt)
+├── output/             # Ergebnisse, Grafiken, CSVs
+├── src/
+│   ├── EDA/            # Explorative Datenanalyse
+│   ├── clustering.py
+│   ├── datenbereinigung.py
+│   ├── datenhochladen.py   # Laden von Daten von Kaggle
+│   ├── feature_builder.py
+│   ├── klassifikation.py
+│   ├── regression.py
+│   ├── training_test.py
+│   └── main.py         # Noch in Entwicklung
+├── requirements.txt
+├── setup.bat
+└── README.md
+```

@@ -1,7 +1,7 @@
 import pandas as pd
-from data_clean import clean_data
+from datenbereinigung import clean_data
 from feature_builder import create_all_features
-from aufteilung_trainings_testdaten import train_testdaten_split, train_testdaten_split_no_stratify
+from training_test import train_testdaten_split, train_testdaten_split_no_stratify
 from sklearn.linear_model import Ridge
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.metrics import r2_score, mean_absolute_error

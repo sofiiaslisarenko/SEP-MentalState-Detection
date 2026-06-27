@@ -1,4 +1,4 @@
-from data_loading import load_data_kaggle
+from datenhochladen import load_data_kaggle
 
 # In zwei Funktionen aufgeteilt zum Bereinigen und zur Ausgabe
 

@@ -13,7 +13,7 @@ def load_data():
                 'statement' und 'status'.
         """
     # Finde den Pfad zu dem Datasets Ordner:
-    path = os.path.join(os.getcwd(), "Datasets")
+    path = os.path.join(os.getcwd(), "../Datasets")
 
     # Ändere das Arbeitsverzeichnis in den gefundenen Pfad:
     os.chdir(path)

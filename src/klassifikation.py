@@ -8,11 +8,11 @@ from sklearn.metrics import classification_report, confusion_matrix
 import matplotlib.pyplot as plt
 import seaborn as sns
 
-from data_clean import clean_data
+from datenbereinigung import clean_data
 from feature_builder import create_all_features
 from sklearn.feature_extraction.text import TfidfVectorizer
 from scipy.sparse import hstack, csr_matrix
-from aufteilung_trainings_testdaten import train_testdaten_split
+from training_test import train_testdaten_split
 
 
 # ============================================================
@@ -149,5 +149,5 @@ axes[1].set_ylabel("Tatsächlich")
 axes[1].tick_params(axis='x', rotation=45)
 
 plt.tight_layout()
-plt.savefig("model_comparison_confusion_matrix.png")
+plt.savefig("../output/klassifikation_model_compar/model_comparison_confusion_matrix.png")
 plt.show()

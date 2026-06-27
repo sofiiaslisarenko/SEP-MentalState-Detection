@@ -11,7 +11,7 @@ def expl_data(df0 : pd.DataFrame):
     # ändere den path auf den outputfolder:
     
     path = os.getcwd()
-    output_path = os.path.join(path, "Output")
+    output_path = os.path.join(path, "../../output")
     os.chdir(output_path)
 
     #BoW u token per message...
@@ -240,7 +240,7 @@ def expl_data(df0 : pd.DataFrame):
 
 def absolute_uncertain(df0 : pd.DataFrame):
     path = os.getcwd()
-    output_path = os.path.join(path, "Output")
+    output_path = os.path.join(path, "../../output")
     os.chdir(output_path)
     # Absolutistische Wörter (Alles oder Nichts Denken)
     absolutist_words = r'(?i)\b(always|never|absolutely|completely|nothing|everything|entirely|all|nobody|forever|ever|noone|everyone|everybody|i know|impossible|must)\b'

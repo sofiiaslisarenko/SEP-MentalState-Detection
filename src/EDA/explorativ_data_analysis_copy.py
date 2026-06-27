@@ -11,7 +11,7 @@ def expl_data(df0 : pd.DataFrame):
     # ändere den path auf den outputfolder:
     
     path = os.getcwd()
-    output_path = os.path.join(path, "Output")
+    output_path = os.path.join(path, "../../output")
     os.chdir(output_path)
 
     #BoW u token per message...
@@ -253,7 +253,7 @@ def absolute_uncertain(df0 : pd.DataFrame, statement_len_filter = 0):
     \nreturnt ein dict.
     """
     path = os.getcwd()
-    output_path = os.path.join(path, "Output")
+    output_path = os.path.join(path, "../../output")
     os.chdir(output_path)
     min_statement_len = statement_len_filter #!!!!ACHTUNG aktuell werden nur statements mit dieser Anzahl genommen und alle anderen aussortiert!!!!
     df0['word_count'] = df0["statement"].str.split().str.len()
@@ -416,7 +416,7 @@ def pronouns(df0:pd.DataFrame, statement_len_filter = 0):
     \nstatement_len_filter sortiert alle statements aus, deren wörter länge kleiner als der übergebene int ist. (Default = 0)
     """
     path = os.getcwd()
-    output_path = os.path.join(path, "Output")
+    output_path = os.path.join(path, "../../output")
     os.chdir(output_path)
     min_statement_len = statement_len_filter #!!!!ACHTUNG aktuell werden nur statements mit dieser Anzahl genommen und alle anderen aussortiert!!!!
     
