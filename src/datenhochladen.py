@@ -47,7 +47,7 @@ def load_data_kaggle():
 
 
 # Dieser Block läuft nur, wenn die Datei DIREKT gestartet wird (z.B. zum Testen),
-# nicht beim Import durch andere Module wie eda.py.
+# nicht beim Import durch andere Module wie eda_tfidf_ngramme.py.
 if __name__ == "__main__":
     df0 = load_data()
     df1 = load_data_kaggle()
