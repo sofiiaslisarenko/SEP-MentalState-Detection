@@ -80,3 +80,39 @@ def create_all_features(df0: pd.DataFrame) -> pd.DataFrame:
     df0 = pd.concat([df0, df_new_features], axis=1)
     df0.info()
     return df0.fillna(0), list(seen_features)
+
+
+
+# Features von Markus
+import nltk
+from nltk.corpus import stopwords
+import string
+nltk.download('stopwords', quiet=True)
+stw_eng = set(stopwords.words('english'))
+satzzeichentabelle = str.maketrans('', '', string.punctuation)
+
+def text_process(mess):
+    text_ohne_sz = mess.translate(satzzeichentabelle)
+    clea = []
+    for wort in text_ohne_sz.split():
+        wort_lower = wort.lower()
+        if wort_lower not in stw_eng:
+            clea.append(wort_lower)
+    return clea
+
+def text_process_with_stw(mess):
+    text_ohne_sz = mess.translate(satzzeichentabelle)
+    clea = []
+    for wort in text_ohne_sz.split():
+        clea.append(wort.lower())
+    return clea
+
+def create_additional_features(df0: pd.DataFrame) -> pd.DataFrame:
+    df0['statement'] = df0['statement'].fillna("").astype(str)
+    df0['tokenized_text'] = df0['statement'].apply(text_process)
+    df0['tokenized_text_with_stw'] = df0['statement'].apply(text_process_with_stw)
+    anz_ohne_stw = df0['tokenized_text'].str.len()
+    anz_mit_stw = df0['tokenized_text_with_stw'].str.len()
+    df0['stopwords_per_text_ratio'] = (anz_mit_stw - anz_ohne_stw) / anz_mit_stw.replace({0: 1})
+
+    return df0
