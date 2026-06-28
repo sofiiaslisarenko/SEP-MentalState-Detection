@@ -14,14 +14,6 @@ def expl_data(df0 : pd.DataFrame):
     output_path = os.path.join(path, "../../output")
     os.chdir(output_path)
 
-    #BoW u token per message...
-    #sentence len
-    #pronouns
-    #Pronouns:
-    #remove the largest suicidal statement
-    #This is done to remove an outlier that would skew the data
-    # c = df0[df0['status'] == 'Suicidal']['statement'].str.len().idxmax()
-    # df0.drop(index=c, inplace=True)
     # Das ?i sagt dem Programm das groß und klein schreibung egal ist. r steht für raw string, damit kann man backslashes \ in den String schreiben ohne dass das folge Zeichen excaped
     self_pronouns = r'(?i)\b(we|us|ourselves|ourself|i|me|mine|myself|my)\b'
     other_pronouns = r'(?i)\b(you|your|yours|yourself|yourselves|he|she|her|hers|herself|him|his|himself|they|them|their|theirs|themselves|thyself|thine)\b'
@@ -29,7 +21,6 @@ def expl_data(df0 : pd.DataFrame):
 
 
     # -------------------------------------------- ZÄHLEN ----------------------------------------------
-    # Zählen:
     #selbstbezogene Pronomen in Statement
 
     df0['self_pronouns_count'] = df0["statement"].str.count(self_pronouns)
@@ -57,7 +48,7 @@ def expl_data(df0 : pd.DataFrame):
     anteil_self_to_all = df0.groupby('status')['self_pronouns_count'].sum() / df0.groupby('status')['all_pronouns_count'].sum() #sum summiert die gruppierten einträge von df0 status
     print(f"Anteil der selbstbezogene Pronomen (plural + singular) in allen Pronomen: \n{anteil_self_to_all}")
 
-    std_self = df0.groupby('status')['self_pronouns_count'].std()   #std() ist die funktion für das einfache berechnen der standart abweichung
+    std_self = df0.groupby('status')['self_pronouns_count'].std()   #std() ist standart abweichung
     print(f"Standardabweichung des Vorkommens von selbstbezogenen Pronomen (plural + singular) pro Gruppe in statements: \n{std_self}")
     
     std_all = df0.groupby('status')['all_pronouns_count'].std()
@@ -99,15 +90,15 @@ def expl_data(df0 : pd.DataFrame):
     sns.boxenplot(ax=axes[1], x="self_pronoun_to_word_ratio", y="status", data=df0, hue="status")
     axes[1].set_title("Verhältnis: Ich-Pronomen zur Textlänge", fontsize=14)
     axes[1].set_xlabel("Ratio (Ich-Pronomen / Gesamtwörter)")
-    axes[1].set_ylabel("") # Status steht schon an der Achse
+    axes[1].set_ylabel("")
     
     plt.tight_layout() 
-    fig.savefig("pronoun_analysis_1.png") # Speichern vor show()
+    fig.savefig("pronoun_analysis_1.png")
     plt.show()
 
     # --- Zweiter Graph ---
     fig, axes = plt.subplots(nrows=2, ncols=2, figsize = (16,9))
-    sns.set_theme(style="whitegrid", palette="husl") # Theme nochmal für diese Figur anwenden
+    sns.set_theme(style="whitegrid", palette="husl")
     fig.suptitle("Verteilung der Text-Features", fontsize=18, fontweight='bold', y=0.98)
     
     sns.histplot(ax=axes[0,0], data=df0, x="self_pronoun_to_word_ratio", hue="status", kde=True, bins=40)
@@ -199,14 +190,14 @@ def expl_data(df0 : pd.DataFrame):
     axes[0, 1].set_ylabel("")
 
     # ---Fragezeichen-Dichte ---
-    # Wir nehmen den Durchschnitt (mean) per Barplot. Die kleinen Striche sind die Fehlertoleranz.
+    # Wir nehmen den Durchschnitt (mean) per Barplot
     sns.barplot(ax=axes[1, 0], data=df0, x="question_marks_count", y="status", hue="status", legend=False)
     axes[1, 0].set_title("Durchschnittliche Fragen pro Statement", fontsize=14)
     axes[1, 0].set_xlabel("Anzahl Fragezeichen")
     axes[1, 0].set_ylabel("")
 
     # --- Absolutismus-Quote ---
-    # Wir multiplizieren die Ratio mit 100, um schöne Prozentzahlen (0-2%) auf der Achse zu haben
+    # multiplizieren die Ratio mit 100 für %
     df0['absolutist_percent'] = df0['absolutist_ratio'] * 100
     sns.barplot(ax=axes[1, 1], data=df0, x="absolutist_percent", y="status", hue="status", legend=False)
     axes[1, 1].set_title("Anteil absolutistischer Wörter", fontsize=14)
@@ -225,9 +216,6 @@ def expl_data(df0 : pd.DataFrame):
     axes[1].set_xlabel("<- Zukunft / Sorgen (0.0) Vergangenheit / Reue ->")
     axes[1].set_ylabel("")
 
-    # sns.clustermap(ax = axes[0], data = df0, x = "absolutist_ratio", y = "uncertain_ratio", hue = "status", legend= False)
-    # axes[0].axvline(0, color='red', linestyle='--', alpha=0.6)
-    # plt.tight_layout(rect=(0, 0.03, 1, 0.95))
     fig.savefig("pronoun_analysis_4.png")
     plt.show()
     
@@ -260,73 +248,6 @@ def absolute_uncertain(df0 : pd.DataFrame, statement_len_filter = 0):
     words_over = df0['word_count'] > min_statement_len
     df0 = df0[words_over]
     print(df0["status"].value_counts())
-    #output_path = os.path.join(path, "Output")
-    #os.chdir(output_path)
-    # Absolutistische Wörter (Alles oder Nichts Denken)
-    # absolutist_words = r'(?i)\b(always|never|absolutely|completely|nothing|everything|entirely|all|nobody|forever|ever|noone|everyone|everybody|i know|impossible|must)\b'
-    # uncertain_words = r'(?i)\b(maybe|perhaps|possibly|possible|may|might|could|i think|not sure|uncertain)\b'
-    # Zeitliche Orientierung (Past und Future)
-    # past_words = r'(?i)\b(was|were|had|did|been|could|said|went|ago|last|got|wanted|used|liked)\b'
-    # future_words = r"(?i)\b(will|shall|going to|might|worry|worried|anxious|'ll)\b"
-    # Zeit-Fokus (-1 = Komplett Zukunft, +1 = Komplett Vergangenheit)
-    # df0['past_count'] = df0["statement"].str.count(past_words)
-    # df0['future_count'] = df0["statement"].str.count(future_words)
-    # df0['total_time_words'] = df0['past_count'] + df0['future_count']
-    # df0['time_focus_score'] = ((df0['past_count'] - df0['future_count']) / df0['total_time_words']).fillna(0)
-    # Absolutismus-Quote (Absolutistische Wörter pro Wort)
-    # df0['word_count'] = df0["statement"].str.split().str.len()
-    # words_over = df0['word_count'] > 10
-    # df0 = df0[words_over]
-    # df0['absolutist_count'] = df0["statement"].str.count(absolutist_words)
-    # df0['absolutist_ratio'] = df0['absolutist_count'] / df0['word_count']
-    # df0['uncertain_count'] = df0["statement"].str.count(uncertain_words)
-    # df0['uncertain_ratio'] = df0['uncertain_count'] / df0['word_count']
-    # df0['absolute_uncertain_ratio'] = ((df0['absolutist_count'] - df0['uncertain_count']) / (df0['uncertain_count'] + df0['absolutist_count'])).fillna(0)
-    # maske_echte_werte = df0[['total_time_words','uncertain_count','absolutist_count']].any(axis = 1)
-    # df_plot = df0[maske_echte_werte]
-    # uncertain_mean = df0.groupby("status")["uncertain_count"].mean()
-    # print(uncertain_mean)
-    # absolut_mean = df0.groupby("status")["absolutist_count"].mean()
-    # print(absolut_mean)
-    
-    
-     # --- Graph: Zeit-Fokus (Oben Rechts) ---
-    # fig, axes = plt.subplots(nrows=2, ncols=2, figsize = (16,9)) # Manuelle Achsenpositionierung
-    # sns.violinplot(ax = axes[0,1],data=df0, x="time_focus_score", y="status", hue="status", legend=False)
-    # axes[0,1].axvline(0, color='red', linestyle='--', alpha=0.6) # Rote Null-Linie
-    # axes[0,1].set_title("Fokus: Zukunft vs. Vergangenheit", fontsize=14)
-    # axes[0,1].set_xlabel("<- Zukunft / Sorgen (0.0) Vergangenheit / Reue ->")
-    # axes[0,1].set_ylabel("")
-
-    # sns.histplot(ax = axes[0,0], data = df_plot, x = "absolutist_ratio", hue = "status", legend= True, bins = 25).set(yscale ="log")
-    # sns.histplot(ax = axes[1,0], x = "uncertain_ratio", hue = "status", data = df_plot, bins = 25).set(yscale ="log")
-    # #sns.pointplot(ax = axes[1,1], data = df0, x = "absolutist_ratio", y = "uncertain_ratio", hue = "status", errorbar="sd")
-    # sns.scatterplot(ax = axes[1,1], data = df_plot, x = "uncertain_count", y = "absolutist_count", hue = "status").set(yscale = "log", xscale = "log")
-    # #plt.tight_layout(rect=(0, 0.03, 1, 0.95))
-    # fig.savefig("pronoun_analysis_5.png")
-    # plt.show()
-
-    # sns.jointplot(
-    #     data=df_plot, 
-    #     y="absolute_uncertain_ratio", 
-    #     x="time_focus_score", 
-    #     hue="status", 
-    #     kind="kde",
-    #     levels = 2
-    # )
-    # plt.show()
-    # sns.jointplot(
-    #     data=df_plot, 
-    #     y="absolutist_count", 
-    #     x="uncertain_count", 
-    #     hue="status", 
-    #     kind="kde",
-    #     levels = 3,
-    #     ylim = (0,30),
-    #     xlim = (0,30)
-    # )
-    # plt.show()
-    # os.chdir(path)
 
     absolutist_words = ["always", "never", "completely", "nothing", "everything", "all",
                               "ever", "everyone", "i know",
@@ -340,7 +261,7 @@ def absolute_uncertain(df0 : pd.DataFrame, statement_len_filter = 0):
                        "frustrating","frustrated","isolated","isolation","isolating","mental","ill",
                         "brain","forced","demand","abuse","sexual","sex","life","meds","medications","medication"]
     
-    # Hilfsfunktion: Zählt die Wörter einer Liste, bildet den Durchschnitt und berechnet den Z-Score
+    # Hilfsfunktion, Zählt die Wörter einer Liste, bildet den Durchschnitt und berechnet den Z-Score
     def get_z_score_df(word_list):
         counts = {}
         for word in word_list:
@@ -349,11 +270,11 @@ def absolute_uncertain(df0 : pd.DataFrame, statement_len_filter = 0):
         
         df = pd.DataFrame(counts)
         df.to_json("word_frequency.json")
-        # Z-Score Standardisierung. .fillna(0) verhindert Fehler, falls ein Wort zufällig 0 mal vorkommt.
+        # Z-Score Standardisierung, .fillna(0) verhindert Fehler, falls ein Wort zufällig 0 mal vorkommt.
         df_z = ((df - df.mean()) / df.std()).fillna(0)
         return df_z
 
-    # Daten für alle drei Kategorien berechnen
+    # Daten für die drei Kategorien
     df_abs_z = get_z_score_df(absolutist_words)
     df_unc_z = get_z_score_df(uncertain_words)
     df_neg_z = get_z_score_df(negative_words)
@@ -366,7 +287,7 @@ def absolute_uncertain(df0 : pd.DataFrame, statement_len_filter = 0):
     sns.heatmap(df_abs_z, ax=axes[0], cmap="coolwarm", center=0, linewidths=.5, cbar_kws={'label': 'Z-Score (Rot = Stark)'})
     axes[0].set_title("1. Absolutistische Wörter (Alles-oder-Nichts-Denken)", fontsize=14)
     axes[0].set_ylabel("Status")
-    axes[0].set_xlabel("") # Verstecken, da es sonst zu überladen wirkt
+    axes[0].set_xlabel("")
 
     # --- Heatmap Unsicherheit ---
     sns.heatmap(df_unc_z, ax=axes[1], cmap="coolwarm", center=0, linewidths=.5, cbar_kws={'label': 'Z-Score (Rot = Stark)'})
@@ -418,7 +339,7 @@ def pronouns(df0:pd.DataFrame, statement_len_filter = 0):
     path = os.getcwd()
     output_path = os.path.join(path, "../../output")
     os.chdir(output_path)
-    min_statement_len = statement_len_filter #!!!!ACHTUNG aktuell werden nur statements mit dieser Anzahl genommen und alle anderen aussortiert!!!!
+    min_statement_len = statement_len_filter 
     
     self_pronouns = r'(?i)\b(we|us|ourself|ourselves|i|me|mine|myself|my)\b'
     other_pronouns = r'(?i)\b(you|your|yours|yourself|yourselves|he|she|her|hers|herself|him|his|himself|they|them|their|theirs|themselves|thyself|thine)\b'
@@ -426,7 +347,6 @@ def pronouns(df0:pd.DataFrame, statement_len_filter = 0):
 
 
     # -------------------------------------------- ZÄHLEN ----------------------------------------------
-    # Zählen:
     #selbstbezogene Pronomen in Statement
     df0['self_pronouns_count'] = df0["statement"].str.count(self_pronouns)
     #alle Pronomen in Statement
@@ -462,7 +382,7 @@ def pronouns(df0:pd.DataFrame, statement_len_filter = 0):
         pattern = rf'(?i)\b{pron}\b'
         counter_other[pron] = df0['statement'].str.count(pattern).groupby(df0['status']).mean().to_dict()
     
-    # --- DAS ERGEBNIS WUNDERSCHÖN DARSTELLEN ---
+    # --- Ergebniss ---
     df_self_counts = pd.DataFrame(counter_self)
     df_other_counts = pd.DataFrame(counter_other)
 
@@ -518,6 +438,7 @@ def pronouns(df0:pd.DataFrame, statement_len_filter = 0):
         palette="husl"
     )
 
+    # folgendes noch mit neuen wörtern testen:
     # Normalisieren der Differenz, bzw wie dominant sind die selbstbezogenen Pronomen auf einer Skala von -1 bis 1
     # words_over = df0['word_count'] > 0
     # df0 = df0[words_over]
@@ -535,7 +456,7 @@ def pronouns(df0:pd.DataFrame, statement_len_filter = 0):
     #     # levels = 2
     # )
     
-    # plt.show()
+    plt.show()
     os.chdir(path)
     print(df_all_counts.head())
     return df_all_counts
@@ -582,17 +503,13 @@ def depr_vs_suic(df0 : pd.DataFrame):
             color='black', 
             weight='semibold'
         )
-    
-    # Add a diagonal reference line (where suicidal_score == depression_score)
     max_val = max(filtered['depression_score'].max(), filtered['suicidal_score'].max())
     ax.plot([0, max_val], [0, max_val], color='gray', linestyle='--', alpha=0.5)
     
-    # Title and Labels
+    # Title und Labels
     ax.set_title("Distinguishing Words: Suicidal vs. Depression TF-IDF Scores", fontsize=14, pad=15)
     ax.set_xlabel("Depression Score (Mean TF-IDF)", fontsize=12)
     ax.set_ylabel("Suicidal Score (Mean TF-IDF)", fontsize=12)
-    
-    # Save the chart safely
     plt.savefig("suic_vs_depr.png", bbox_inches='tight')
     
     return top_suicidal_words, top_depression_words
