@@ -35,3 +35,4 @@ def clean_data(df):
     df = df[df['statement'] != '#NAME?']
     print("Groesse mit NAME:", df.shape)
     print(df[df['statement'].str.contains('NAME', na=False)]['statement'].tolist())
+    return df
