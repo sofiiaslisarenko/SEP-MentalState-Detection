@@ -84,3 +84,5 @@ print(f"MAE: {mean_absolute_error(y_test, y_pred_ridge):.3f}")
 print("===== Random Forest =====")
 print(f"R²:  {r2_score(y_test, y_pred_rf):.3f}")
 print(f"MAE: {mean_absolute_error(y_test, y_pred_rf):.3f}")
+
+# Visualisierung und Auswertung in Progress
