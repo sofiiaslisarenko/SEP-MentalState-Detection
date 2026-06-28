@@ -76,6 +76,8 @@ X_test_combined = hstack([csr_matrix(X_test_num), X_test_tfidf])
 model_lr = LogisticRegression(max_iter=2000, C = 10, class_weight="balanced", solver = 'lbfgs')
 model_lr.fit(X_train_combined, y_train)
 y_pred_lr = model_lr.predict(X_test_combined)
+print("Logistic Regression:\n", classification_report(y_test, y_pred_lr))
+
 
 
 
@@ -90,6 +92,7 @@ y_pred_lr = model_lr.predict(X_test_combined)
 model_rf = RandomForestClassifier(n_estimators=100, random_state=42,n_jobs=-1)
 model_rf.fit(X_train_combined, y_train)
 y_pred_rf = model_rf.predict(X_test_combined)
+print("Random Forest:\n", classification_report(y_test, y_pred_rf))
 
 # VISUALISIERUNG: CONFUSION MATRIX FÜR 2 MODELLE
 status_labels = sorted(df0['status'].unique())

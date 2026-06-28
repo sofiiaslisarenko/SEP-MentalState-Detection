@@ -12,7 +12,7 @@ def train_testdaten_split(df0: pd.DataFrame):
         random_state=42,
         stratify=df0['status']
     )
-
+    print(f"Train: {len(train_df)}, Test: {len(test_df)}")
     return train_df, test_df
 
 def train_testdaten_split_no_stratify(df0: pd.DataFrame):
@@ -21,4 +21,5 @@ def train_testdaten_split_no_stratify(df0: pd.DataFrame):
         test_size=0.2,
         random_state=42,
     )
+    print(f"Train: {len(train_df)}, Test: {len(test_df)}")
     return train_df, test_df
