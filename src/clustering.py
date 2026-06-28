@@ -82,7 +82,7 @@ def visualisierung(X, labels, modellname):
     plt.xlabel("PCA Komponente 1")
     plt.ylabel("PCA Komponente 2")
     plt.tight_layout()
-    plt.savefig("figures/clustering_ergebnis.png")
+    plt.savefig("../output/clustering/clustering_ergebnis.png")
     plt.show()
     plt.close()
     print("Plot gespeichert als clustering_ergebnis.png")
@@ -99,7 +99,7 @@ def heatmap_cluster_vs_status(df):
     plt.ylabel("Cluster")
     plt.xticks(rotation=30, ha='right')
     plt.tight_layout()
-    plt.savefig("figures/cluster_vs_status_heatmap.png")
+    plt.savefig("../output/clustering/cluster_vs_status_heatmap.png")
     plt.show()
     plt.close()
 

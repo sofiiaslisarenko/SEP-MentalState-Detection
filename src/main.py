@@ -11,7 +11,7 @@ os.chdir(path)
 # Explorative Daten analyse:
 def expl_data():
     """Verarbeitet die Data und returned einen Dataframe"""
-    from src.EDA import explorativ_data_analysis_copy as eda
+    from src.EDA import eda_structure_graphs as eda
     #import data_loading as dl
     import datenbereinigung as dc
     #import feature_corralation_test as fct
