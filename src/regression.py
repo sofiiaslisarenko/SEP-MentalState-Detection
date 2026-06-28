@@ -88,7 +88,7 @@ model_xgb = XGBRegressor(n_estimators=100, learning_rate=0.1, random_state=42, n
 model_xgb.fit(X_train_scaled, y_train)
 y_pred_xgb = model_xgb.predict(X_test_scaled)
 
-# Auswertung: R2 (erklaerte Varianz) und MAE (mittlerer Fehler) pro Modell
+# Auswertung: R2 (erklaerte Varianz), MAE (mittlerer Fehler) pro Modell und XGBoost
 print("===== Ridge =====")
 print(f"R²:  {r2_score(y_test, y_pred_ridge):.3f}")
 print(f"MAE: {mean_absolute_error(y_test, y_pred_ridge):.3f}")
