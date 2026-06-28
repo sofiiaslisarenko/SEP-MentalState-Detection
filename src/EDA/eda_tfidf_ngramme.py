@@ -169,7 +169,7 @@ def vergleich_klassen(df, stop_words, ignore_words, n=20):
         axes[1].set_xlabel("TF-IDF-Wert")
 
         plt.tight_layout()
-        # plt.savefig(f"output/tfidf_compare/tfidf_compare_{classes[i]}.png")
+        # plt.savefig(f"../output/tfidf_compare/tfidf_compare_{classes[i]}.png")
         # plt.show()
 
 
@@ -194,7 +194,7 @@ def plot_ngramms(df, stop_words, n=20, ngram: int = 1):
         plt.title(f"Top-{n} {ngram}-Gramme nach TF-IDF – Klasse: {classes[i]}",
                   fontsize=14, fontweight="bold")
         plt.tight_layout()
-        # plt.savefig(f"output/ngramme/{ngram}gramms_{classes[i]}.png")
+        # plt.savefig(f"../output/ngramme/{ngram}gramms_{classes[i]}.png")
         # plt.show()
 
 # ERSTELLEN EINES WORDCLOUDS
@@ -230,7 +230,7 @@ def word_clouds_image(df, stop_words, ignore_words):
         plt.imshow(wc, interpolation="bilinear")
         plt.axis("off")
         plt.title(classes[i])
-        # plt.savefig(f"output/word_clouds/WordCloud_{classes[i]}.png")
+        # plt.savefig(f"../output/word_clouds/WordCloud_{classes[i]}.png")
         # plt.show()
 
 # Häufigkeitsanalyse einer Einzelklasse (Depression) – Demonstration
