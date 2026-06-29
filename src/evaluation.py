@@ -73,7 +73,7 @@ model_underfit = LogisticRegression(max_iter=5, C=0.001, solver='lbfgs')
 model_underfit.fit(X_train_comb, train_df['status'])
 print(f"Accuracy auf Testdaten: {accuracy_score(test_df['status'], model_underfit.predict(X_test_comb2)):.2f}")
 
-# ===== EXTREME SPLITS =====
+# EXTREME SPLITS
 def test_extreme_split(df0, feature_cols, test_size, n=10):
     accuracies = []
     for i in range(n):

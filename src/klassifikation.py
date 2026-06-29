@@ -4,7 +4,6 @@ import numpy as np
 from sklearn.preprocessing import StandardScaler
 from sklearn.linear_model import LogisticRegression
 from sklearn.ensemble import RandomForestClassifier
-from sklearn.svm import SVC
 from sklearn.metrics import classification_report, confusion_matrix
 import matplotlib.pyplot as plt
 import seaborn as sns
@@ -79,16 +78,7 @@ y_pred_lr = model_lr.predict(X_test_combined)
 print("Logistic Regression:\n", classification_report(y_test, y_pred_lr))
 
 
-
-
-# MODELL 2: SVM
-# model_svm = SVC(kernel="rbf", random_state=42)
-# model_svm.fit(X_train_combined, y_train)
-# y_pred_svm = model_svm.predict(X_test_combined)
-
-
-
-# MODELL 3: RANDOM FOREST
+# MODELL 2: RANDOM FOREST
 model_rf = RandomForestClassifier(n_estimators=100, random_state=42,n_jobs=-1)
 model_rf.fit(X_train_combined, y_train)
 y_pred_rf = model_rf.predict(X_test_combined)
@@ -106,12 +96,7 @@ axes[0].set_xlabel("Vorhergesagt")
 axes[0].set_ylabel("Tatsächlich")
 axes[0].tick_params(axis='x', rotation=45)
 
-# sns.heatmap(confusion_matrix(y_test, y_pred_svm, labels=status_labels), annot=True, fmt="d",
-#             ax=axes[1], cmap="Blues", xticklabels=status_labels, yticklabels=status_labels)
-# axes[1].set_title("SVM")
-# axes[1].set_xlabel("Vorhergesagt")
-# axes[1].set_ylabel("Tatsächlich")
-# axes[1].tick_params(axis='x', rotation=45)
+
 
 sns.heatmap(confusion_matrix(y_test, y_pred_rf, labels=status_labels), annot=True, fmt="d",
             ax=axes[1], cmap="Blues", xticklabels=status_labels, yticklabels=status_labels)
