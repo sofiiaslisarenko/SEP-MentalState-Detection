@@ -1,5 +1,6 @@
 from datenbereinigung import clean_data
 from training_test import train_testdaten_split
+import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
 import pandas as pd
@@ -8,22 +9,27 @@ from wordcloud import WordCloud
 import nltk
 from sklearn.feature_extraction.text import TfidfVectorizer
 from collections import Counter
-nltk.download('stopwords')
+nltk.download('stopwords', quiet=True)
 from nltk.corpus import stopwords
 stop_words_nltk = set(stopwords.words('english'))
 
-# Importieren des DataFrames
-df0 = clean_data()
-# Auswählen von Trainingsdaten
-# ab hier nur noch die
-df0, _ = train_testdaten_split(df0)
-
-# Normalisieren des Textes
-df0['statement'] = df0['statement'].str.lower()
-
 # FUNKTIONEN
 
-def build_class_docs(df):
+def normalize_text(df: pd.DataFrame) -> pd.DataFrame:
+    """Kleinschreibung als Normalisierung. Erwartet bereits gesplittete Trainingsdaten."""
+    df = df.copy()
+    df['statement'] = df['statement'].str.lower()
+    return df
+
+def build_ignore_words(df: pd.DataFrame, stop_words, n: int = 20, threshold: int = 5) -> set[str]:
+    """Wörter, die in >= threshold Klassen unter den Top-n vorkommen -> zu unspezifisch."""
+    words_per_class = top_ngrams(df, stop_words, n=n, ngram=1)
+    zaehler = Counter()
+    for woerter in words_per_class.values():
+        zaehler.update(woerter)
+    return {word for word, count in zaehler.items() if count >= threshold}
+
+def build_class_docs(df: pd.DataFrame) -> dict[str, str]:
     """Fügt pro Klasse alle Statements zu einem großen String zusammen. Kontraktionen expandieren
     Gibt ein Dictionary zurück: {Klassenname: Gesamttext}."""
     # Dictionary anlegen, das pro Klasse den zusammengefügten Gesamttext speichert
@@ -99,36 +105,17 @@ def top_ngrams(df: pd.DataFrame, stop_words: set | None = None, n:int = 10, ngra
 
     return result
 
-def print_top_ngrams(df, stop_words, n=10, ngram: int = 1):
+def print_top_ngrams(df, stop_words, n=10, ngram: int = 1) -> None:
     """Gibt pro Klasse die Top-n Wörter formatiert aus."""
     words_per_class = top_ngrams(df, stop_words, n, ngram)
     for klasse, woerter in words_per_class.items():
         print(f"--------------------- Top-Wörter in der Klasse {klasse} ---------------------")
         print(woerter)
 
-# Erstellen von Liste der zusätzlichen Wörten, die ignoriert werden müssen.
-
-words_per_class = top_ngrams(df0, stop_words_nltk, n=20, ngram=1)
-
-# 1. Alle Top-Wörter aller Klassen.
-alle = []
-for woerter in words_per_class.values():
-    alle.extend(woerter)        # extend, nicht +=, und nicht append
-
-# 2. Zählen, in wie vielen Klassen jedes Wort vorkam
-zaehler = Counter(alle)
-
-# Ausgabe der häufigsten Wörter
-# for wort, anzahl in zaehler.most_common():
-#     print(anzahl, wort)
-
-# 3. Schwelle anwenden -> die comprehension schreibst du
-ignore_words = {word for word, count in zaehler.items() if count >= 5}
-
-
 # BALKENDIAGRAMME
 
-def top_n_paare(row, feature_names, ignore_words, n=20):
+def top_n_paare(row: np.ndarray, feature_names: np.ndarray,
+                ignore_words: set[str], n: int = 20) -> list[tuple[str, float]]:
     """Liefert die Top-n (Wort, TF-IDF-Wert)-Paare einer Matrix-Zeile,
     nach Wert absteigend, ohne die Wörter aus ignore_words."""
     # Wörter + Werte paaren, dabei ignore_words rauslassen
@@ -139,7 +126,8 @@ def top_n_paare(row, feature_names, ignore_words, n=20):
     return top
 
 
-def vergleich_klassen(df, stop_words, ignore_words, n=20):
+def vergleich_klassen(df: pd.DataFrame, stop_words: set[str], ignore_words: set[str],
+                      n: int = 20) -> None:
     """Zeigt für alle Klassen zwei Balkendiagramme nebeneinander:
     links ungefiltert, rechts mit ignore_words gefiltert."""
     tfidf_matrix, classes, feature_names = tfidf_matrix_eda(df, stop_words)
@@ -170,10 +158,10 @@ def vergleich_klassen(df, stop_words, ignore_words, n=20):
 
         plt.tight_layout()
         # plt.savefig(f"../output/tfidf_compare/tfidf_compare_{classes[i]}.png")
-        # plt.show()
+        plt.show()
 
 
-def plot_ngramms(df, stop_words, n=20, ngram: int = 1):
+def plot_ngramms(df: pd.DataFrame, stop_words: set[str], n: int = 20, ngram: int = 1) -> None:
     """Zeigt pro Klasse ein horizontales Balkendiagramm der Top-n n-Gramme
     nach TF-IDF-Wert."""
     tfidf_matrix, classes, feature_names = tfidf_matrix_eda(df, stop_words, ngram)
@@ -195,11 +183,11 @@ def plot_ngramms(df, stop_words, n=20, ngram: int = 1):
                   fontsize=14, fontweight="bold")
         plt.tight_layout()
         # plt.savefig(f"../output/ngramme/{ngram}gramms_{classes[i]}.png")
-        # plt.show()
+        plt.show()
 
 # ERSTELLEN EINES WORDCLOUDS
 
-def word_clouds_image(df, stop_words, ignore_words):
+def word_clouds_image(df: pd.DataFrame, stop_words: set[str], ignore_words: set[str]) -> None:
     """Erzeugt und zeigt pro Klasse eine Word Cloud mit 100 Wörtern auf Basis der TF-IDF-Werte.
 
     Berechnet die TF-IDF-Matrix auf Klassenebene und stellt für jede Klasse
@@ -231,11 +219,11 @@ def word_clouds_image(df, stop_words, ignore_words):
         plt.axis("off")
         plt.title(classes[i])
         # plt.savefig(f"../output/word_clouds/WordCloud_{classes[i]}.png")
-        # plt.show()
+        plt.show()
 
 # Häufigkeitsanalyse einer Einzelklasse (Depression) – Demonstration
 
-def haeufigkeitsanalyse_depression(df, stop_words):
+def haeufigkeitsanalyse_depression(df: pd.DataFrame, stop_words: set[str]) -> None:
     """Zeigt: rohe Worthäufigkeiten sind von Stopwörtern dominiert, daher Filterung.
     Diese Analyse ist exemplarisch; die klassenübergreifende Auswertung folgt via TF-IDF."""
 
@@ -262,42 +250,21 @@ def haeufigkeitsanalyse_depression(df, stop_words):
     for word, count in counter2.most_common(20):  # tuple unpacking
         print(f"{count:>10}  {word}")
 
+def run_eda_oleksandra(df: pd.DataFrame, stop_words: set[str]) -> None:
+    """Orchestriert die komplette EDA. Wird aus main aufgerufen."""
+    df = normalize_text(df)
+    ignore_words = build_ignore_words(df, stop_words)
+
+    # Hier die gewünschten Analysen aktivieren:
+    # print_top_ngrams(df, stop_words, ngram=1)
+    # plot_ngramms(df, stop_words, ngram=1)
+    vergleich_klassen(df, stop_words, ignore_words, n=20)
+    word_clouds_image(df, stop_words, ignore_words)
+    # haeufigkeitsanalyse_depression(df, stop_words)
+
 # KONTROLL-AUSGABE
 
 if __name__ == "__main__":
-    # Klassen-Dokumente: pro Klasse einen kurzen Ausschnitt zur Inhaltsprüfung
-    # class_doc = build_class_docs(df0)
-    # for cl, text in class_doc.items():
-    #     print(f"--------------------- Texte in der Klasse {cl} ---------------------")
-    #     print()
-    #     print(text[:300])
-    #     print()
-    #
-    # Top-Wörte pro Klasse über TF-IDF
-    # print_top_ngrams(df0, stop_words_nltk, ngram=1)
-    # Top-Bigramme pro Klasse über TF-IDF
-    # print_top_ngrams(df0, stop_words_nltk, ngram=2)
-    # Top-Trigramme pro Klasse über TF-IDF
-    # print_top_ngrams(df0, stop_words_nltk, ngram=3)
-    # Top-4-Gramme pro Klasse über TF-IDF
-    # print_top_ngrams(df0, stop_words_nltk, ngram=4)
-    #
-    # Häufigkeitsanalyse der Klasse Depression (Demonstration)
-    # haeufigkeitsanalyse_depression(df0, stop_words_nltk)
-    #
-    # Word Clouds pro Klasse (auskommentiert – öffnet 7 Bildfenster)
-    # word_clouds_image(df0, stop_words_nltk, ignore_words)
-    #
-    # vergleich_klassen(df0, stop_words_nltk, ignore_words, n=20)
-    #
-    # tfidf_matrix_t, classes_t, feature_names_t = tfidf_matrix_eda(df0, ngram=3)
-    #
-    # for i in range(len(classes_t)):
-    #     row_t = tfidf_matrix_t[i].toarray().flatten()
-    #     top = top_n_paare(row_t, feature_names_t, set(), n=10)
-    #     print(f"--------------------- Top-Bigramme: Klasse {classes_t[i]} ---------------------")
-    #     for bigram, wert in top:
-    #         print(f"{wert:.4f}  {bigram}")
-    #
-    # plot_ngramms(df0, stop_words=stop_words_nltk, n=10, ngram=3)
-    pass
+    df = clean_data()
+    df_train, _ = train_testdaten_split(df)
+    run_eda_oleksandra(df_train, stop_words_nltk)
