@@ -9,7 +9,7 @@ from klassifikation_test import run_best_configuration
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))   # .../src
 
 @contextmanager
-def stabiles_cwd():
+def stable_cwd():
     """Setzt das CWD auf src/EDA, weil der EDA-Code seine Ausgaben über den
     relativen Pfad ../../output speichert – von src/EDA aus zeigt das auf den
     output-Ordner auf Projektebene. Legt output bei Bedarf an und stellt das
@@ -38,7 +38,7 @@ print("\n\n\n------------------------- Explorative Datenanalyse ----------------
 run_eda_oleksandra(df_train, stop_words_nltk)
 
 # EDA von Sebastian
-with stabiles_cwd():
+with stable_cwd():
     expl_data(df_train.copy())
     # Weitere Funktionen
 
