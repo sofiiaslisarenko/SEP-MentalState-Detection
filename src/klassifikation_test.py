@@ -23,49 +23,52 @@ from training_test import train_testdaten_split
 
 # Daten laden & Feature bauen (einmal, wird von allen Experimenten geteilt)
 
-df0 = clean_data()
-df0, all_target_words = create_all_features(df0)
-train_df, test_df = train_testdaten_split(df0)
+def prepare_data():
+    df0 = clean_data()
+    df0, all_target_words = create_all_features(df0)
+    train_df, test_df = train_testdaten_split(df0)
 
-macro_features = [
-    'word_count',
-    # 'pronoun_dominance',
-    # 'absolutist_ratio',
-    # 'absolute_uncertain_ratio',
-    # 'time_focus_score',
-    # 'future_count',
-    # 'past_count',
-    'self_pronouns_count',
-    'first_pl_pr_count',
-    'second_pronouns_count',
-    'third_pr_count',
-    'other_pl_pr_count',
-    'self_pr_other_count',
-    'question_marks_count',
-    'ellipses_count',
-    'exclamation_marks_count',
-    'sleep_words',
-]
+    macro_features = [
+        'word_count',
+        # 'pronoun_dominance',
+        # 'absolutist_ratio',
+        # 'absolute_uncertain_ratio',
+        # 'time_focus_score',
+        # 'future_count',
+        # 'past_count',
+        'self_pronouns_count',
+        'first_pl_pr_count',
+        'second_pronouns_count',
+        'third_pr_count',
+        'other_pl_pr_count',
+        'self_pr_other_count',
+        'question_marks_count',
+        'ellipses_count',
+        'exclamation_marks_count',
+        'sleep_words',
+    ]
+    word_frequency_features = [c for c in df0.columns if c.startswith('freq_')]
+    feature_cols = macro_features + word_frequency_features
+    status_labels = sorted(df0['status'].unique())
 
-word_frequency_features = [col for col in df0.columns if col.startswith('freq_')]
-feature_cols = macro_features + word_frequency_features
+    return train_df, test_df, feature_cols, status_labels
 
-y_train = train_df['status']
-y_test = test_df['status']
-
-# Custom Stoppwörter: Negationen & Signalwörter bewusst BEHALTEN
-stop = set(stopwords.words('english'))
-keep = {'no', 'not', 'nor', 'never', 'none', 'nothing', 'cannot',
-        "n't", 'without', 'against'}
-custom_stop = stop - keep
-
-status_labels = sorted(df0['status'].unique())
-
+def build_custom_stopwords():
+    """Englische Stoppwörter, aber Negationen & Signalwörter bewusst behalten.
+    Grund: 'not', 'never' etc. tragen bei psychischen Zuständen echtes Signal
+    (z.B. 'I do not feel safe') und dürfen nicht wegfallen."""
+    stop = set(stopwords.words('english'))
+    keep = {'no', 'not', 'nor', 'never', 'none', 'nothing', 'cannot',
+            "n't", 'without', 'against'}
+    return stop - keep
 
 # Klassifikationsevaluation
 
 def classification_evaluation(vectorizer,
                    models: dict,
+                   train_df, test_df,
+                   feature_cols,
+                   status_labels,
                    name: str = "",
                    gewichtungs_faktor: float = 2,
                    plot_confusion: bool = False,
@@ -92,6 +95,10 @@ def classification_evaluation(vectorizer,
     --------
     dict {modell-name: y_pred} – falls du die Vorhersagen weiterverwenden willst.
     """
+    # y_train/y_test intern ableiten statt global
+    y_train = train_df['status']
+    y_test = test_df['status']
+
     # --- TF-IDF aus dem Statement-Text ---
     X_train_tfidf = vectorizer.fit_transform(train_df['statement'])
     X_test_tfidf = vectorizer.transform(test_df['statement'])
@@ -138,6 +145,27 @@ def classification_evaluation(vectorizer,
 
     return predictions
 
+def run_best_configuration():
+    """Fährt die final gewählte Konfiguration: Negationen behalten,
+    Bigramme, class_weight='balanced'. Das ist das Ergebnis des
+    Modellvergleichs (die anderen Experimente stehen im __main__-Block)."""
+    train_df, test_df, feature_cols, status_labels = prepare_data()
+    custom_stop = build_custom_stopwords()
+
+    return classification_evaluation(
+        vectorizer=TfidfVectorizer(max_features=5000, stop_words=list(custom_stop),
+                                   min_df=3, max_df=0.7, ngram_range=(1, 2)),
+        models={
+            "Logistic Regression": LogisticRegression(max_iter=2000, C=10,
+                                                      class_weight="balanced"),
+            "Random Forest": RandomForestClassifier(n_estimators=100, random_state=42,
+                                                    n_jobs=-1, class_weight="balanced"),
+        },
+        train_df=train_df, test_df=test_df,
+        feature_cols=feature_cols, status_labels=status_labels,
+        name="Negationen + Bigramme, class_weight balanced",
+        plot_confusion=True,
+    )
 # Experimente (aus main.py oder direkt hier aufrufbar)
 if __name__ == "__main__":
     # Ausgangspunkt aus klassifikation.py (sklearn stopwords, ohne Negationen, Unigramme)
