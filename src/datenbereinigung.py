@@ -24,9 +24,8 @@ def clean_data():
 
     return df
 
-def print_clean_data():
+def print_clean_data(df):
 
-    df = load_data_kaggle() # Der Datensatz vor Bereinigung
     df_clean = clean_data()
 
     mask = df_clean["statement"].str.contains("ð", na=False) # Überprüfen des Filters für nicht-ASCII Zeichen
