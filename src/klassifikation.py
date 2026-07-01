@@ -72,6 +72,7 @@ X_test_combined = hstack([csr_matrix(X_test_num), X_test_tfidf])
 
 
 # MODELL 1: LOGISTIC REGRESSION
+print("\n\n\n Testen nur mit eingebauten Stoppwörtern: ")
 model_lr = LogisticRegression(max_iter=2000, C = 10, class_weight="balanced", solver = 'lbfgs')
 model_lr.fit(X_train_combined, y_train)
 y_pred_lr = model_lr.predict(X_test_combined)
@@ -106,5 +107,5 @@ axes[1].set_ylabel("Tatsächlich")
 axes[1].tick_params(axis='x', rotation=45)
 
 plt.tight_layout()
-plt.savefig("../output/klassifikation_model_compar/model_comparison_confusion_matrix.png")
+plt.savefig("../output/klassifikation_model_compar/model_comparison_confusion_matrix_only_sw.png")
 plt.show()
