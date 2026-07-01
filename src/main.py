@@ -1,10 +1,9 @@
-import pandas as pd
 import os
 
 #Finde den Pfad zu dem Datasets Ordner:
 path = os.getcwd()
-output_path = os.path.join(path, "Output")
-data_path = os.path.join(path, "Datasets")
+output_path = os.path.join(path, "../output")
+data_path = os.path.join(path, "../Datasets")
 
 #Ändere das Arbeitsverzeichniss in den gefundenen Pfad:
 os.chdir(path)
@@ -12,9 +11,9 @@ os.chdir(path)
 # Explorative Daten analyse:
 def expl_data():
     """Verarbeitet die Data und returned einen Dataframe"""
-    import explorativ_data_analysis_copy as eda
+    from src.EDA import eda_structure_graphs as eda
     #import data_loading as dl
-    import data_clean as dc
+    import datenbereinigung as dc
     #import feature_corralation_test as fct
     #import feature_builder as fb
     #import Klassifikation_Modell_Training as KMT
