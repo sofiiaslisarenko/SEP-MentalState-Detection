@@ -21,8 +21,6 @@ from feature_builder import create_all_features
 from training_test import train_testdaten_split
 
 
-# Daten laden & Feature bauen (einmal, wird von allen Experimenten geteilt)
-
 def prepare_data():
     df0 = clean_data()
     df0, all_target_words = create_all_features(df0)
