@@ -26,24 +26,3 @@ Für Windows:
         pip install -r requirements.txt
 
 > **Hinweis:** `src/` muss als Sources Root in PyCharm eingestellt werden (Rechtsklick auf `src/` → *Mark Directory as* → *Sources Root*).
-
-## Projektstruktur
-
-```
-SEP_SS26/
-├── Datasets/           # Rohdaten (.csv, wird derzeit nicht benutzt)
-├── output/             # Ergebnisse, Grafiken, CSVs
-├── src/
-│   ├── EDA/            # Explorative Datenanalyse
-│   ├── clustering.py
-│   ├── datenbereinigung.py
-│   ├── datenhochladen.py   # Laden von Daten von Kaggle
-│   ├── feature_builder.py
-│   ├── klassifikation.py
-│   ├── regression.py
-│   ├── training_test.py
-│   └── main.py         # Noch in Entwicklung
-├── requirements.txt
-├── setup.bat
-└── README.md
-```
