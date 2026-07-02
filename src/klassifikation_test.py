@@ -143,30 +143,14 @@ def classification_evaluation(vectorizer,
 
     return predictions
 
-def run_best_configuration():
-    """Fährt die final gewählte Konfiguration: Negationen behalten,
-    Bigramme, class_weight='balanced'. Das ist das Ergebnis des
-    Modellvergleichs (die anderen Experimente stehen im __main__-Block)."""
+# Experimente
+if __name__ == "__main__":
+
     train_df, test_df, feature_cols, status_labels = prepare_data()
     custom_stop = build_custom_stopwords()
 
-    return classification_evaluation(
-        vectorizer=TfidfVectorizer(max_features=5000, stop_words=list(custom_stop),
-                                   min_df=3, max_df=0.7, ngram_range=(1, 2)),
-        models={
-            "Logistic Regression": LogisticRegression(max_iter=2000, C=10,
-                                                      class_weight="balanced"),
-            "Random Forest": RandomForestClassifier(n_estimators=100, random_state=42,
-                                                    n_jobs=-1, class_weight="balanced"),
-        },
-        train_df=train_df, test_df=test_df,
-        feature_cols=feature_cols, status_labels=status_labels,
-        name="Negationen + Bigramme, class_weight balanced",
-        plot_confusion=True,
-    )
-# Experimente (aus main.py oder direkt hier aufrufbar)
-if __name__ == "__main__":
     # Ausgangspunkt aus klassifikation.py (sklearn stopwords, ohne Negationen, Unigramme)
+
     classification_evaluation(
         vectorizer=TfidfVectorizer(max_features=5000, stop_words='english',
                                    min_df=3, max_df=0.7),
@@ -176,12 +160,16 @@ if __name__ == "__main__":
             "Random Forest": RandomForestClassifier(n_estimators=100, random_state=42,
                                                     n_jobs=-1),
         },
+        train_df=train_df,
+        test_df=test_df,
+        feature_cols=feature_cols,
+        status_labels=status_labels,
         name="sklearn stopwords, ohne Negationen, Unigramme",
         plot_confusion=True,
         #save_path="../output/klassifikation_model_compar/model_comparison_baseline_sklearn_sw.png",
     )
 
-    # Beste Konfiguration (Negationen + Bigramme, class_weight balanced)
+    # Beste Konfiguration (Negationen + Bigramme, class_weight balanced): RF macro avg F1-Score 0.66 --> 0.74
     classification_evaluation(
         vectorizer=TfidfVectorizer(max_features=5000, stop_words=list(custom_stop),
                                    min_df=3, max_df=0.7, ngram_range=(1, 2)),
@@ -191,6 +179,10 @@ if __name__ == "__main__":
             "Random Forest": RandomForestClassifier(n_estimators=100, random_state=42,
                                                     n_jobs=-1, class_weight="balanced"),
         },
+        train_df=train_df,
+        test_df=test_df,
+        feature_cols=feature_cols,
+        status_labels=status_labels,
         name="Negationen + Bigramme, class_weight balanced",
         plot_confusion=True,
         #save_path="../output/klassifikation_model_compar/model_comparison_neg_bigr_balanced.png",
@@ -221,6 +213,10 @@ if __name__ == "__main__":
             "Random Forest": RandomForestClassifier(n_estimators=100, random_state=42,
                                                     n_jobs=-1, class_weight="balanced"),
         },
+        train_df=train_df,
+        test_df=test_df,
+        feature_cols=feature_cols,
+        status_labels=status_labels,
         name="Negationen und Unigramme",
         plot_confusion=True,
         #save_path="../output/klassifikation_model_compar/model_comparison_neg_unigramme.png",
@@ -236,6 +232,10 @@ if __name__ == "__main__":
             "Random Forest": RandomForestClassifier(n_estimators=100, random_state=42,
                                                     n_jobs=-1, class_weight="balanced"),
         },
+        train_df=train_df,
+        test_df=test_df,
+        feature_cols=feature_cols,
+        status_labels=status_labels,
         name="Negationen + Bigramme, class_weight balanced, 10k max features",
         plot_confusion=True,
         #save_path="../output/klassifikation_model_compar/model_comparison_neg_bigr_balanced_10k.png",
@@ -251,6 +251,10 @@ if __name__ == "__main__":
             "Random Forest": RandomForestClassifier(n_estimators=100, random_state=42,
                                                     n_jobs=-1, class_weight="balanced_subsample"),
         },
+        train_df=train_df,
+        test_df=test_df,
+        feature_cols=feature_cols,
+        status_labels=status_labels,
         name="Negationen + Bigramme, class_weight balanced_subsample",
         plot_confusion=True,
         #save_path="../output/klassifikation_model_compar/model_comparison_neg_bigr_subsample.png",
@@ -266,6 +270,10 @@ if __name__ == "__main__":
             "Random Forest": RandomForestClassifier(n_estimators=100, random_state=42,
                                                     n_jobs=-1, class_weight="balanced"),
         },
+        train_df=train_df,
+        test_df=test_df,
+        feature_cols=feature_cols,
+        status_labels=status_labels,
         name="Negationen + Bigramme, sublinear_tf in Vectorizer",
         plot_confusion=True,
         #save_path="../output/klassifikation_model_compar/model_comparison_neg_bigr_sublineartf.png",
