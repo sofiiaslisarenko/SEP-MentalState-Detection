@@ -1,4 +1,6 @@
 import pandas as pd
+from scipy.ndimage import label
+
 from datenbereinigung import clean_data
 from feature_builder import create_all_features, create_additional_features
 from training_test import train_testdaten_split, train_testdaten_split_no_stratify
@@ -76,85 +78,147 @@ X_test_scaled  = scaler.transform(X_test)
 model_ridge = Ridge()
 model_ridge.fit(X_train_scaled, y_train)
 y_pred_ridge = model_ridge.predict(X_test_scaled)
+r2_score_ridge = r2_score(y_test, y_pred_ridge)
+r2_train_ridge = r2_score(y_train, model_ridge.predict(X_train_scaled))
 
 # Modell 2: Random Forest (nicht-lineares Modell aus vielen Entscheidungsbaeumen)
 model_rf = RandomForestRegressor(n_estimators=100, random_state=42, n_jobs=-1)
 model_rf.fit(X_train_scaled, y_train)
 y_pred_rf = model_rf.predict(X_test_scaled)
+r2_score_rf = r2_score(y_test, y_pred_rf)
+r2_train_rf = r2_score(y_train, model_rf.predict(X_train_scaled))
 
 # Modell 3: XGBoost (Baumbasiertes Gradient Boosting)
 # learning_rate und n_estimators kontrollieren, wie fein das Modell lernt
 model_xgb = XGBRegressor(n_estimators=100, learning_rate=0.1, random_state=42, n_jobs=-1)
 model_xgb.fit(X_train_scaled, y_train)
 y_pred_xgb = model_xgb.predict(X_test_scaled)
+r2_score_xgb = r2_score(y_test, y_pred_xgb)
+r2_train_xgb = r2_score(y_train, model_xgb.predict(X_train_scaled))
 
 # Auswertung: R2 (erklaerte Varianz), MAE (mittlerer Fehler) pro Modell und XGBoost
 print("===== Ridge =====")
-print(f"R²:  {r2_score(y_test, y_pred_ridge):.3f}")
+print(f"Ridge: Train R² = {r2_train_ridge:.3f}, Test R² = {r2_score_ridge:.3f}")
 print(f"MAE: {mean_absolute_error(y_test, y_pred_ridge):.3f}")
 
 print("===== Random Forest =====")
-print(f"R²:  {r2_score(y_test, y_pred_rf):.3f}")
+print(f"Random Forest: Train R² = {r2_train_rf:.3f}, Test R² = {r2_score_rf:.3f}")
 print(f"MAE: {mean_absolute_error(y_test, y_pred_rf):.3f}")
 
 print("===== XGBoost =====")
-print(f"R²:  {r2_score(y_test, y_pred_xgb):.3f}")
+print(f"XGBoost: Train R² = {r2_train_xgb:.3f}, Test R² = {r2_score_xgb:.3f}")
 print(f"MAE: {mean_absolute_error(y_test, y_pred_xgb):.3f}")
 
 
 
-# 1. Metriken für alle Modelle berechnen (inklusive RMSE)
-def evaluiere_modell(y_true, y_pred, modell_name):
-    r2 = r2_score(y_true, y_pred)
-    mae = mean_absolute_error(y_true, y_pred)
-    # RMSE wird berechnet, indem wir die Wurzel (np.sqrt) aus dem Mean Squared Error ziehen
-    rmse = np.sqrt(mean_squared_error(y_true, y_pred))
+# # 1. Metriken für alle Modelle berechnen (inklusive RMSE)
+# def evaluiere_modell(y_true, y_pred, modell_name):
+#     r2 = r2_score(y_true, y_pred)
+#     mae = mean_absolute_error(y_true, y_pred)
+#     # RMSE wird berechnet, indem wir die Wurzel (np.sqrt) aus dem Mean Squared Error ziehen
+#     rmse = np.sqrt(mean_squared_error(y_true, y_pred))
+#
+#     return {'Modell': modell_name, 'R²': r2, 'MAE': mae, 'RMSE': rmse}
+#
+#
+# # Ergebnisse in einer Liste sammeln
+# ergebnisse = [
+#     evaluiere_modell(y_test, y_pred_ridge, 'Ridge'),
+#     evaluiere_modell(y_test, y_pred_rf, 'Random Forest'),
+#     evaluiere_modell(y_test, y_pred_xgb, 'XGBoost')]
+#
+# # In ein Pandas DataFrame umwandeln für die Visualisierung
+# df_ergebnisse = pd.DataFrame(ergebnisse)
+#
+# # Ergebnisse in der Konsole ausgeben
+# print(df_ergebnisse.to_string(index=False))
+#
+# # 2. Visuelles Dashboard erstellen
+# sns.set_theme(style="whitegrid")
+# fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(14, 6))
+#
+# # Diagramm 1: Bestimmtheitsmaß R² (Höher ist besser)
+# sns.barplot(data=df_ergebnisse, x='Modell', y='R²', ax=ax1, palette='Blues_d')
+# ax1.set_title('Erklärte Varianz (R²)\n[Höher ist besser]', fontweight='bold')
+# ax1.set_ylim(0, max(df_ergebnisse['R²']) + 0.1)
+# ax1.set_ylabel('R² Score')
+#
+# # Werte auf die Balken schreiben
+# for p in ax1.patches:
+#     ax1.annotate(f"{p.get_height():.3f}",
+#                  (p.get_x() + p.get_width() / 2., p.get_height()),
+#                  ha='center', va='bottom', fontsize=10, xytext=(0, 5), textcoords='offset points')
+#
+# # Diagramm 2: Fehlermetriken MAE und RMSE (Niedriger ist besser)
+# # Dafür "schmelzen" wir den DataFrame, damit Seaborn gruppierte Balken zeichnen kann
+# df_fehler = df_ergebnisse.melt(id_vars='Modell', value_vars=['MAE', 'RMSE'],
+#                                var_name='Metrik', value_name='Fehler')
+#
+# sns.barplot(data=df_fehler, x='Modell', y='Fehler', hue='Metrik', ax=ax2, palette='Reds_d')
+# ax2.set_title('Vorhersagefehler (MAE & RMSE)\n[Niedriger ist besser]', fontweight='bold')
+# ax2.set_ylabel('Fehlerwert')
+#
+# # Werte auf die Balken schreiben
+# for p in ax2.patches:
+#     ax2.annotate(f"{p.get_height():.3f}",
+#                  (p.get_x() + p.get_width() / 2., p.get_height()),
+#                  ha='center', va='bottom', fontsize=10, xytext=(0, 5), textcoords='offset points')
+#
+# plt.tight_layout()
+# plt.show()
 
-    return {'Modell': modell_name, 'R²': r2, 'MAE': mae, 'RMSE': rmse}
+
+# Predicted-vs-Actual-Plot
+# fig, axes = plt.subplots(1, 3, figsize=(24, 8), sharey=True, sharex=True)
+#
+# predictions = [y_pred_ridge, y_pred_rf, y_pred_xgb]
+# names = ["Ridge", "Random Forest", "XGBoost"]
+# r2_scores = [r2_score_ridge, r2_score_rf, r2_score_xgb]
+#
+# for ax, y_pred, name, r2 in zip(axes, predictions, names, r2_scores):
+#     sns.regplot(x=y_test, y=y_pred, ax=ax, scatter_kws={'alpha': 0.1}, line_kws={'color': 'red', 'label': f'{name}-Trend'})
+#     ax.axline((0, 0), slope=1, color='green', linestyle='--', label='Ideal: y=x')
+#     ax.set_xlim(-1, 1)
+#     ax.set_ylim(-1, 1)
+#     ax.set_xlabel("")
+#     ax.set_title(name)
+#     ax.text(-0.9, 0.8, f"R² = {r2:.3f}")
+#     ax.legend()
+#
+# fig.suptitle("Vorhersage vs. VADER-Sentiment-Score")
+# axes[1].set_xlabel("VADER-Sentiment-Score")
+# axes[0].set_ylabel("Vorhergesagtes Sentiment")
+# plt.show()
 
 
-# Ergebnisse in einer Liste sammeln
-ergebnisse = [
-    evaluiere_modell(y_test, y_pred_ridge, 'Ridge'),
-    evaluiere_modell(y_test, y_pred_rf, 'Random Forest'),
-    evaluiere_modell(y_test, y_pred_xgb, 'XGBoost')]
 
-# In ein Pandas DataFrame umwandeln für die Visualisierung
-df_ergebnisse = pd.DataFrame(ergebnisse)
 
-# Ergebnisse in der Konsole ausgeben
-print(df_ergebnisse.to_string(index=False))
 
-# 2. Visuelles Dashboard erstellen
-sns.set_theme(style="whitegrid")
-fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(14, 6))
 
-# Diagramm 1: Bestimmtheitsmaß R² (Höher ist besser)
-sns.barplot(data=df_ergebnisse, x='Modell', y='R²', ax=ax1, palette='Blues_d')
-ax1.set_title('Erklärte Varianz (R²)\n[Höher ist besser]', fontweight='bold')
-ax1.set_ylim(0, max(df_ergebnisse['R²']) + 0.1)
-ax1.set_ylabel('R² Score')
 
-# Werte auf die Balken schreiben
-for p in ax1.patches:
-    ax1.annotate(f"{p.get_height():.3f}",
-                 (p.get_x() + p.get_width() / 2., p.get_height()),
-                 ha='center', va='bottom', fontsize=10, xytext=(0, 5), textcoords='offset points')
 
-# Diagramm 2: Fehlermetriken MAE und RMSE (Niedriger ist besser)
-# Dafür "schmelzen" wir den DataFrame, damit Seaborn gruppierte Balken zeichnen kann
-df_fehler = df_ergebnisse.melt(id_vars='Modell', value_vars=['MAE', 'RMSE'],
-                               var_name='Metrik', value_name='Fehler')
 
-sns.barplot(data=df_fehler, x='Modell', y='Fehler', hue='Metrik', ax=ax2, palette='Reds_d')
-ax2.set_title('Vorhersagefehler (MAE & RMSE)\n[Niedriger ist besser]', fontweight='bold')
-ax2.set_ylabel('Fehlerwert')
 
-# Werte auf die Balken schreiben
-for p in ax2.patches:
-    ax2.annotate(f"{p.get_height():.3f}",
-                 (p.get_x() + p.get_width() / 2., p.get_height()),
-                 ha='center', va='bottom', fontsize=10, xytext=(0, 5), textcoords='offset points')
 
-plt.tight_layout()
-plt.show()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
