@@ -98,6 +98,42 @@ plt.show()
 # Auswahl: gute Vorhersage, mittlere Abweichung, große Abweichung
 
 
+# 1. Daten zusammenführen
+reg_results_df = regression.test_df.copy()
+reg_results_df["actual_sentiment"] = regression.y_test.values
+reg_results_df["pred_xgb"] = regression.y_pred_xgb # Annahme: XGBoost ist Ihr Hauptmodell
+
+# 2. Den absoluten Fehler berechnen (Distanz zwischen Vorhersage und Wahrheit)
+reg_results_df["absolute_error"] = (reg_results_df["actual_sentiment"] - reg_results_df["pred_xgb"]).abs()
+
+# 3. Auswahl der 3 Fälle basierend auf dem Fehler
+# Fall 1: Sehr gute Vorhersage (kleinster Fehler)
+ex_good = reg_results_df.nsmallest(1, "absolute_error")
+
+# Fall 2: Mittlere Abweichung (Median-Fehler)
+ex_med = reg_results_df.iloc[(reg_results_df["absolute_error"] - reg_results_df["absolute_error"].median()).abs().argsort()[:1]]
+
+# Fall 3: Große Abweichung (größter Fehler)
+ex_bad = reg_results_df.nlargest(1, "absolute_error")
+
+# 4. Zusammenfügen
+reg_examples = pd.concat([ex_good, ex_med, ex_bad])
+reg_examples["example_type"] = ["Sehr gut", "Mittelmäßig", "Sehr schlecht"]
+
+# 5. Ausgabe
+print("\n3 beispielhafte Instanzen für die Regression:")
+print(reg_examples[["example_type", "statement", "actual_sentiment", "pred_xgb", "absolute_error"]].to_string(index=False))
+
+# Optional: Kurzer Vergleich der Fehler
+plt.figure(figsize=(8, 4))
+sns.barplot(data=reg_examples, x="example_type", y="absolute_error", color="red")
+plt.title("Fehlergröße für die ausgewählten Beispiele")
+plt.ylabel("Absoluter Fehler (MAE)")
+plt.show()
+
+
+
+
 
 
 
