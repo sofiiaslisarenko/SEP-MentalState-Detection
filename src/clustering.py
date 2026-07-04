@@ -1,14 +1,13 @@
-from datenbereinigung import clean_data
-import pandas as pd
-import numpy as np
-from sklearn.feature_extraction.text import TfidfVectorizer
-from scipy.sparse import csr_matrix
-from sklearn.decomposition import TruncatedSVD, PCA
-from sklearn.preprocessing import normalize
-from sklearn.cluster import KMeans, DBSCAN, AgglomerativeClustering
-from sklearn.metrics import silhouette_score, davies_bouldin_score
 import matplotlib.pyplot as plt
 import seaborn as sns
+from sklearn.cluster import KMeans, DBSCAN
+from sklearn.decomposition import TruncatedSVD, PCA
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.metrics import silhouette_score, davies_bouldin_score
+from sklearn.preprocessing import normalize
+
+from datenbereinigung import clean_data
+
 
 def vorbereitung(df):
     """Text in Zahlen umwandeln und Dimensionen reduzieren"""

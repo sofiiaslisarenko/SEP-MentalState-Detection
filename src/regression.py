@@ -1,16 +1,16 @@
+import nltk
 import pandas as pd
-from scipy.ndimage import label
-
-from datenbereinigung import clean_data
-from feature_builder import create_all_features, create_additional_features
-from training_test import train_testdaten_split, train_testdaten_split_no_stratify
-from sklearn.linear_model import Ridge
+from nltk.sentiment import SentimentIntensityAnalyzer
 from sklearn.ensemble import RandomForestRegressor
+from sklearn.linear_model import Ridge
 from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
 from sklearn.preprocessing import StandardScaler
 from xgboost import XGBRegressor
-import nltk
-from nltk.sentiment import SentimentIntensityAnalyzer
+
+from datenbereinigung import clean_data
+from feature_builder import create_all_features, create_additional_features
+from training_test import train_testdaten_split_no_stratify
+
 nltk.download('vader_lexicon', quiet=True)  # Laedt das VADER-Lexikon herunter (nur beim ersten Mal noetig)
 import numpy as np
 import matplotlib.pyplot as plt
