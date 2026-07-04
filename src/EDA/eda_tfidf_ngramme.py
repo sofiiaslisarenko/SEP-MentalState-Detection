@@ -291,5 +291,5 @@ def run_eda_oleksandra(df: pd.DataFrame, stop_words: set[str]) -> None:
 if __name__ == "__main__":
     df = clean_data()
     df_train, _ = train_testdaten_split(df)
-    # run_eda_oleksandra(df_train, stop_words_nltk)
+    run_eda_oleksandra(df_train, stop_words_nltk)
     plot_klassenverteilung(df_train)
