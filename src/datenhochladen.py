@@ -1,6 +1,8 @@
 import os
-import pandas as pd
+
 import kagglehub
+import pandas as pd
+
 
 def load_data():
     """Lädt den Hauptdatensatz aus dem Datasets-Ordner und gibt ihn als DataFrame zurück.
@@ -49,14 +51,6 @@ def load_data_kaggle():
 # Dieser Block läuft nur, wenn die Datei DIREKT gestartet wird (z.B. zum Testen),
 # nicht beim Import durch andere Module wie eda_tfidf_ngramme.py.
 if __name__ == "__main__":
-    df0 = load_data()
-    df1 = load_data_kaggle()
+    df = load_data_kaggle()
     # Kurze Kontrolle, ob die Daten korrekt geladen wurden:
-    # print(df0.head())       # erste Zeilen ansehen
-    # print(df0.nunique())    # Anzahl eindeutiger Werte pro Spalte
-    print(df1.head())
-
-    kaputt = df0["statement"].iloc[348]   # die Zeile mit dem internship-Emoji
-    print(repr(kaputt)) # Kaputte Zeichen - 'â', 'ðŸ'
-    mask = df0["statement"].str.contains("ð", na=False)
-    print("Mojibake-Treffer:", mask.sum())
+    print(df.head())

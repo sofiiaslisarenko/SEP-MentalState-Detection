@@ -1,14 +1,17 @@
+from collections import Counter
+
+import contractions
+import matplotlib.pyplot as plt
+import nltk
+import numpy as np
+import pandas as pd
+import seaborn as sns
+from sklearn.feature_extraction.text import TfidfVectorizer
+from wordcloud import WordCloud
+
 from datenbereinigung import clean_data
 from training_test import train_testdaten_split
-import numpy as np
-import matplotlib.pyplot as plt
-import seaborn as sns
-import pandas as pd
-import contractions
-from wordcloud import WordCloud
-import nltk
-from sklearn.feature_extraction.text import TfidfVectorizer
-from collections import Counter
+
 nltk.download('stopwords', quiet=True)
 from nltk.corpus import stopwords
 stop_words_nltk = set(stopwords.words('english'))
