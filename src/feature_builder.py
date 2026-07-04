@@ -15,8 +15,8 @@ def create_all_features(df0: pd.DataFrame) -> pd.DataFrame:
     other_pl_pr = r"(?i)\b(they|them|their|theirs|themselves|themself)\b"
     self_pr_other = r"(?i)\b(himself|herself|themselves|themself)\b"
     # Absolutistische Wörter
-    # absolutist_words = r'(?i)\b(always|never|absolutely|completely|nothing|everything|entirely|all|nobody|forever|ever|noone|everyone|everybody|i know|impossible|must)\b'
-    # uncertain_words = r'(?i)\b(maby|perhaps|possibly|possible|may|might|could|i think|not sure|uncertain)\b'
+    absolutist_words = r'(?i)\b(always|never|absolutely|completely|nothing|everything|entirely|all|nobody|forever|ever|noone|everyone|everybody|i know|impossible|must)\b'
+    uncertain_words = r'(?i)\b(maby|perhaps|possibly|possible|may|might|could|i think|not sure|uncertain)\b'
     # Zeitliche Orientierung
     past_words = r"(?i)\b(was|were|had|did|been|could|said|went|ago|last|got|wanted|used|liked|have been|'ve|used to|past)\b"
     future_words = r"(?i)\b(will|shall|going to|might|worry|worried|anxious|'ll|'d like to|might|should|future)\b"
@@ -32,19 +32,13 @@ def create_all_features(df0: pd.DataFrame) -> pd.DataFrame:
     df0['third_pr_count'] = df0["statement"].str.count(third_pr)
     df0['other_pl_pr_count'] = df0["statement"].str.count(other_pl_pr)
     df0['self_pr_other_count'] = df0["statement"].str.count(self_pr_other)
-    #df0['all_pronouns_count'] = df0['self_pronouns_count'] + df0['other_pronouns_count']
-    # df0['pronoun_dominance'] = ((df0['self_pronouns_count'] - df0['other_pronouns_count']) / df0['all_pronouns_count']).fillna(0)
-    # # Absolutismus-Quote (Absolutistische Wörter pro Wort)
-    # df0['absolutist_count'] = df0["statement"].str.count(absolutist_words)
-    # df0['absolutist_ratio'] = df0['absolutist_count'] / df0['word_count']
-    # df0['uncertain_count'] = df0["statement"].str.count(uncertain_words)
-    # df0['uncertain_ratio'] = df0['uncertain_count'] / df0['word_count']
-    # df0['absolute_uncertain_ratio'] = (df0['absolutist_count'] - df0['uncertain_count']) / (df0['uncertain_count'] + df0['absolutist_count']).fillna(0)
-    # Zeit-Fokus (-1 = Komplett Zukunft, +1 = Komplett Vergangenheit)
+    df0['all_pronouns_count'] = df0['self_pronouns_count'] + df0['other_pronouns_count']
+    df0['absolutist_count'] = df0["statement"].str.count(absolutist_words)
+    df0['uncertain_count'] = df0["statement"].str.count(uncertain_words)
     df0['past_count'] = df0["statement"].str.count(past_words)
     df0['future_count'] = df0["statement"].str.count(future_words)
     df0['total_time_words'] = df0['past_count'] + df0['future_count']
-    #df0['time_focus_score'] = ((df0['past_count'] - df0['future_count']) / df0['total_time_words']).fillna(0)
+
     
     # Zeichensetzung als Emotions-Barometer (Fragezeichen und Resignation/Pausen)
     # Der Backslash \ ist wichtig, weil ? und . in Regex Sonderzeichen sind.

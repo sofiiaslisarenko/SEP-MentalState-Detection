@@ -20,12 +20,11 @@ train_df, test_df = train_testdaten_split(df0)
 
 macro_features = [
     'word_count', 
-    #'pronoun_dominance', 
-    #'absolutist_ratio', 
-    #'absolute_uncertain_ratio', 
-    #'time_focus_score',
-    #'future_count',
-    #'past_count',
+    'all_pronouns_count',
+    'absolutist_count',
+    'uncertain_count',
+    'future_count',
+    'past_count',
     'self_pronouns_count',
     'first_pl_pr_count',
     'second_pronouns_count',
