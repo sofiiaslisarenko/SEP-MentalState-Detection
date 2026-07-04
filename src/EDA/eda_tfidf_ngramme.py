@@ -250,6 +250,30 @@ def haeufigkeitsanalyse_depression(df: pd.DataFrame, stop_words: set[str]) -> No
     for word, count in counter2.most_common(20):  # tuple unpacking
         print(f"{count:>10}  {word}")
 
+# Zielvariablen-Verteilung
+def plot_klassenverteilung(df: pd.DataFrame) -> None:
+    """Zeigt die Anzahl der Statements pro Klasse im Dataframe.
+    Macht class imbalance direkt sichtbar."""
+    # Prozentuale Verteilung
+    print("\n------------- Prozentuale Klassenverteilung -------------\n")
+    print((df['status'].value_counts(normalize=True) * 100).round(1))
+    # Reihenfolge nach Häufigkeit absteigend -> Imbalance sofort erkennbar
+    reihenfolge = df['status'].value_counts().index
+
+    plt.figure(figsize=(14, 6))
+    ax = sns.countplot(data=df, y='status', order=reihenfolge, hue='status', palette='husl')
+
+    # Absolute Zahlen an die Balken schreiben
+    for container in ax.containers:
+        ax.bar_label(container, padding=3)
+
+    plt.title("Klassenverteilung im Trainingsset", fontsize=14, fontweight="bold")
+    plt.xlabel("Anzahl Statements")
+    plt.ylabel("Klasse (status)")
+    plt.tight_layout()
+    # plt.savefig("../../output/klassenverteilung_train.png")
+    plt.show()
+
 def run_eda_oleksandra(df: pd.DataFrame, stop_words: set[str]) -> None:
     """Orchestriert die komplette EDA. Wird aus main aufgerufen."""
     df = normalize_text(df)
@@ -267,4 +291,5 @@ def run_eda_oleksandra(df: pd.DataFrame, stop_words: set[str]) -> None:
 if __name__ == "__main__":
     df = clean_data()
     df_train, _ = train_testdaten_split(df)
-    run_eda_oleksandra(df_train, stop_words_nltk)
+    # run_eda_oleksandra(df_train, stop_words_nltk)
+    plot_klassenverteilung(df_train)

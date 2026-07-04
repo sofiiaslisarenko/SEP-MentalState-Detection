@@ -2,8 +2,6 @@ from datenhochladen import load_data_kaggle
 
 # In zwei Funktionen aufgeteilt zum Bereinigen und zur Ausgabe
 
-# TODO: "poll", "https" entfernen
-
 def clean_data():
     df = load_data_kaggle()
 
@@ -19,12 +17,15 @@ def clean_data():
     df = df.dropna(subset=['statement', 'status'])
     df = df.drop(columns=['Unnamed: 0'])
 
+    # Duplikate entfernen
+    df = df.drop_duplicates(subset=['statement', 'status'])
+
     # Entfernung von 13 Spalten mit NAME die leer sind
     df = df[df['statement'] != '#NAME?']
 
     return df
 
-def print_clean_data(df):
+def print_clean_data(df_roh):
 
     df_clean = clean_data()
 
@@ -43,10 +44,10 @@ def print_clean_data(df):
     print("Unique Classes:", df_clean['status'].unique())
     print(df_clean['status'].value_counts())
     # 5 Die leere Spalten werden gelöscht
-    print("Groesse bevor Cleaning:", df.shape)
+    print("Groesse bevor Cleaning:", df_roh.shape)
     print("Groesse nach Cleaning:", df_clean.shape)
 
 
 if __name__ == "__main__":
-    df = clean_data()
-    print(df.head())
+    df = load_data_kaggle()
+    print_clean_data(df)
