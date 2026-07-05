@@ -1,9 +1,6 @@
-# from data_clean import clean_data
-
-
-# df0 = clean_data()
-from sklearn.model_selection import train_test_split
 import pandas as pd
+from sklearn.model_selection import train_test_split
+
 
 def train_testdaten_split(df0: pd.DataFrame):
     train_df, test_df = train_test_split(

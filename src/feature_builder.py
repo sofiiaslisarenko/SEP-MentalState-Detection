@@ -1,5 +1,5 @@
 import pandas as pd
-import re
+
 
 def create_all_features(df0: pd.DataFrame) -> pd.DataFrame:
     """Berechnet Makro-Metriken und Token-Frequenzen für jedes einzelne Ziel-Wort um sie als einen gesammelten DataFrame weiter zu geben."""

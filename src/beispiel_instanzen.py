@@ -1,5 +1,5 @@
-import pandas as pd
 import matplotlib.pyplot as plt
+import pandas as pd
 import seaborn as sns
 
 import klassifikation
@@ -94,41 +94,48 @@ plt.savefig("../output/klassifikation_model_compar/classification_examples_lr_rf
 plt.show()
 
 
+
 # 3 BEISPIELHAFTE INSTANZEN FÜR DIE REGRESSION
 # Auswahl: gute Vorhersage, mittlere Abweichung, große Abweichung
 
 
-# 1. Daten zusammenführen
-reg_results_df = regression.test_df.copy()
-reg_results_df["actual_sentiment"] = regression.y_test.values
-reg_results_df["pred_xgb"] = regression.y_pred_xgb # Annahme: XGBoost ist Ihr Hauptmodell
+def analyse_regressionsbeispiele(model_name, y_true, y_pred, df_original):
+    # 1. Temporäres DataFrame für das Modell erstellen
+    temp_df = df_original.copy()
+    temp_df["actual"] = y_true
+    temp_df["pred"] = y_pred
+    temp_df["abs_error"] = (temp_df["actual"] - temp_df["pred"]).abs()
 
-# 2. Den absoluten Fehler berechnen (Distanz zwischen Vorhersage und Wahrheit)
-reg_results_df["absolute_error"] = (reg_results_df["actual_sentiment"] - reg_results_df["pred_xgb"]).abs()
+    # 2. Fälle auswählen
+    ex_good = temp_df.nsmallest(1, "abs_error")
+    ex_med = temp_df.iloc[(temp_df["abs_error"] - temp_df["abs_error"].median()).abs().argsort()[:1]]
+    ex_bad = temp_df.nlargest(1, "abs_error")
 
-# 3. Auswahl der 3 Fälle basierend auf dem Fehler
-# Fall 1: Sehr gute Vorhersage (kleinster Fehler)
-ex_good = reg_results_df.nsmallest(1, "absolute_error")
+    # 3. Zusammenführen
+    examples = pd.concat([ex_good, ex_med, ex_bad])
+    examples["example_type"] = ["Sehr gut", "Mittelmäßig", "Sehr schlecht"]
+    examples["model"] = model_name
+    return examples
 
-# Fall 2: Mittlere Abweichung (Median-Fehler)
-ex_med = reg_results_df.iloc[(reg_results_df["absolute_error"] - reg_results_df["absolute_error"].median()).abs().argsort()[:1]]
 
-# Fall 3: Große Abweichung (größter Fehler)
-ex_bad = reg_results_df.nlargest(1, "absolute_error")
+# Analyse für alle 3 Modelle ausführen
+res_ridge = analyse_regressionsbeispiele("Ridge", regression.y_test, regression.y_pred_ridge, regression.test_df)
+res_rf = analyse_regressionsbeispiele("Random Forest", regression.y_test, regression.y_pred_rf, regression.test_df)
+res_xgb = analyse_regressionsbeispiele("XGBoost", regression.y_test, regression.y_pred_xgb, regression.test_df)
 
-# 4. Zusammenfügen
-reg_examples = pd.concat([ex_good, ex_med, ex_bad])
-reg_examples["example_type"] = ["Sehr gut", "Mittelmäßig", "Sehr schlecht"]
+# Alle Ergebnisse zusammenführen
+all_reg_examples = pd.concat([res_ridge, res_rf, res_xgb])
 
-# 5. Ausgabe
-print("\n3 beispielhafte Instanzen für die Regression:")
-print(reg_examples[["example_type", "statement", "actual_sentiment", "pred_xgb", "absolute_error"]].to_string(index=False))
+# Ausgabe der Beispiele (nach Modell gruppiert)
+print("\nBeispielhafte Instanzen pro Modell:")
+print(all_reg_examples[["model", "example_type", "statement", "abs_error"]].to_string(index=False))
 
-# Optional: Kurzer Vergleich der Fehler
-plt.figure(figsize=(8, 4))
-sns.barplot(data=reg_examples, x="example_type", y="absolute_error", color="red")
-plt.title("Fehlergröße für die ausgewählten Beispiele")
-plt.ylabel("Absoluter Fehler (MAE)")
+# Visualisierung: Vergleich der Fehler über alle Modelle
+plt.figure(figsize=(12, 6))
+sns.barplot(data=all_reg_examples, x="example_type", y="abs_error", hue="model", palette="viridis")
+plt.title("Fehlergröße pro Modell und Beispiel-Typ")
+plt.ylabel("Absoluter Fehler")
+plt.xlabel("Qualität der Vorhersage")
 plt.show()
 
 

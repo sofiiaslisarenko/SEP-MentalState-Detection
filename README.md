@@ -42,3 +42,10 @@ Die Label sind keine medizinischen Diagnosen, sondern reflektieren lediglich den
 
 Unsere Fragestellungen
 
+Klassifikation:
+Lässt sich anhand eines Textes (statement) der psychische Zustand einer Person klassifizieren?
+Regression:
+Lässt sich der mit VADER berechnete Sentiment-Score eines Textes aus einfachen, selbst definierten Textmerkmalen vorhersagen? 
+Clustering:
+Welche natürlichen Gruppen lassen sich in den Texten finden, ohne Nutzung der vorhandenen Labels?
+
