@@ -32,7 +32,6 @@ def create_all_features(df0: pd.DataFrame) -> pd.DataFrame:
     df0['third_pr_count'] = df0["statement"].str.count(third_pr)
     df0['other_pl_pr_count'] = df0["statement"].str.count(other_pl_pr)
     df0['self_pr_other_count'] = df0["statement"].str.count(self_pr_other)
-    df0['all_pronouns_count'] = df0['self_pronouns_count'] + df0['other_pronouns_count']
     df0['absolutist_count'] = df0["statement"].str.count(absolutist_words)
     df0['uncertain_count'] = df0["statement"].str.count(uncertain_words)
     df0['past_count'] = df0["statement"].str.count(past_words)
