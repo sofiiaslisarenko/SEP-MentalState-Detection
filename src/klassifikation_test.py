@@ -27,6 +27,7 @@ def prepare_data():
 
     macro_features = [
         'word_count',
+        'all_pronouns',
         'absolutist_count',
         'uncertain_count',
         'future_count',
@@ -40,7 +41,7 @@ def prepare_data():
         'question_marks_count',
         'ellipses_count',
         'exclamation_marks_count',
-        'sleep_words',
+        'sleep_words'
     ]
     word_frequency_features = [c for c in df0.columns if c.startswith('freq_')]
     feature_cols = macro_features + word_frequency_features
