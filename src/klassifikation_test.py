@@ -164,7 +164,7 @@ if __name__ == "__main__":
         status_labels=status_labels,
         name="sklearn stopwords, ohne Negationen, Unigramme",
         plot_confusion=True,
-        #save_path="../output/klassifikation_model_compar/model_comparison_baseline_sklearn_sw.png",
+        # save_path="../output/klassifikation_model_compar/model_comparison_baseline_sklearn_sw.png",
     )
 
     # Beste Konfiguration (Negationen + Bigramme, class_weight balanced): RF macro avg F1-Score 0.66 --> 0.74
@@ -183,7 +183,7 @@ if __name__ == "__main__":
         status_labels=status_labels,
         name="Negationen + Bigramme, class_weight balanced",
         plot_confusion=True,
-        #save_path="../output/klassifikation_model_compar/model_comparison_neg_bigr_balanced.png",
+        # save_path="../output/klassifikation_model_compar/model_comparison_conf_matrix_improvedRF.png",
     )
 
     # Weitere Experimente möglich

@@ -103,5 +103,5 @@ axes[1].set_ylabel("Tatsächlich")
 axes[1].tick_params(axis='x', rotation=45)
 
 plt.tight_layout()
-plt.savefig("../output/klassifikation_model_compar/model_comparison_confusion_matrix_only_sw.png")
+# plt.savefig("../output/klassifikation_model_compar/model_comparison_confusion_matrix.png")
 plt.show()

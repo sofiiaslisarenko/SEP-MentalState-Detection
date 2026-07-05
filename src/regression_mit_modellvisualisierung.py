@@ -33,10 +33,12 @@ df0['sentiment'] = df0['statement'].apply(lambda x: analyzer.polarity_scores(x)[
 # Aufteilen in Train/Test ohne stratify (Zielgroesse ist kontinuierlich, nicht klassenbasiert)
 train_df, test_df = train_testdaten_split_no_stratify(df0)
 
-# Makro-Features auswaehlen (auskommentierte werden bewusst nicht genutzt)
+# Makro-Features auswaehlen
 macro_features = [
     'word_count',
     'all_pronouns',
+    'absolutist_count',
+    'uncertain_count',
     'future_count',
     'past_count',
     'self_pronouns_count',
@@ -47,7 +49,7 @@ macro_features = [
     'self_pr_other_count',
     'question_marks_count',
     'ellipses_count',
-    'exclamation_marks_count', 
+    'exclamation_marks_count',
     'sleep_words',
     'stopwords_per_text_ratio'
 ]

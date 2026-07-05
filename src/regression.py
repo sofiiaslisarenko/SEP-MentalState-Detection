@@ -49,8 +49,7 @@ macro_features = [
     'question_marks_count',
     'ellipses_count',
     'exclamation_marks_count', 
-    'sleep_words',
-    'stopwords_per_text_ratio'
+    'sleep_words'
 ]
 
 # Alle Wort-Haeufigkeits-Spalten automatisch einsammeln

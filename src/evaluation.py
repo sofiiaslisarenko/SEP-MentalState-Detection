@@ -16,6 +16,11 @@ df0, all_target_words = create_all_features(df0)
 
 macro_features = [
     'word_count',
+    'all_pronouns',
+    'absolutist_count',
+    'uncertain_count',
+    'future_count',
+    'past_count',
     'self_pronouns_count',
     'first_pl_pr_count',
     'second_pronouns_count',
