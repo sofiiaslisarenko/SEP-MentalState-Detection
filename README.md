@@ -59,4 +59,4 @@ Der Quellcode liegt im Ordner `src/`. Der Datensatz (zum Anschauen) befindet sic
 
 - **`klassifikation.py`** / **`klassifikation_test.py`** / **`evaluation.py`** – Training und Evaluation der Klassifikationsmodelle.
 - **`regression.py`** / **`regression_mit_modellvisualisierung.py`** – Training und Evaluation der Regressionsmodelle (letzteres inklusive Modellvisualisierung).
-- **`clustering.py`** – Untersuchung der Daten mit Clustering und Training des Clustering-Modells.
+- **`clustering.py`** / **`clustering_visualisierung1.py`** – Untersuchung der Daten mit Clustering, Training und Bewertung des Clustering-Modells
