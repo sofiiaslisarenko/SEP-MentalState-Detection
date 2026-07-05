@@ -48,7 +48,7 @@ macro_features = [
     'question_marks_count',
     'ellipses_count',
     'exclamation_marks_count', 
-    'sleep_words'
+    'sleep_words',
     'stopwords_per_text_ratio'
 ]
 
