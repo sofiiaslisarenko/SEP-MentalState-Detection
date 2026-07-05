@@ -57,6 +57,6 @@ Der Quellcode liegt im Ordner `src/`. Der Datensatz (zum Anschauen) befindet sic
 
 ### Modellierung und Evaluation
 
-- **`klassifikation.py`** / **`klassifikation_test.py`** / **`evaluation.py`** – Training und Evaluation der Klassifikationsmodelle.
+- **`klassifikation.py`** / **`klassifikation_test.py`** / **`evaluation.py`**/ **`klassifikation_mit_Modellvisualisierung.py`** – Training und Evaluation der Klassifikationsmodelle.
 - **`regression.py`** / **`regression_mit_modellvisualisierung.py`** – Training und Evaluation der Regressionsmodelle (letzteres inklusive Modellvisualisierung).
 - **`clustering.py`** / **`clustering_visualisierung1.py`** – Untersuchung der Daten mit Clustering, Training und Bewertung des Clustering-Modells
