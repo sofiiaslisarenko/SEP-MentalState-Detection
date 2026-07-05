@@ -34,7 +34,8 @@ train_df, test_df = train_testdaten_split_no_stratify(df0)
 
 # Makro-Features auswaehlen (auskommentierte werden bewusst nicht genutzt)
 macro_features = [
-    'word_count', 
+    'word_count',
+    'all_pronouns',
     'absolutist_count',
     'uncertain_count',
     'future_count',

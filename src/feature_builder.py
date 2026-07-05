@@ -37,6 +37,7 @@ def create_all_features(df0: pd.DataFrame) -> pd.DataFrame:
     df0['past_count'] = df0["statement"].str.count(past_words)
     df0['future_count'] = df0["statement"].str.count(future_words)
     df0['total_time_words'] = df0['past_count'] + df0['future_count']
+    df0['all_pronouns'] = df0['self_pronouns_count'] + df0['first_pl_pr_count'] + df0['second_pronouns_count'] + df0['third_pr_count'] + df0['other_pl_pr_count'] +  df0['self_pr_other_count']
 
     
     # Zeichensetzung als Emotions-Barometer (Fragezeichen und Resignation/Pausen)

@@ -36,12 +36,9 @@ train_df, test_df = train_testdaten_split_no_stratify(df0)
 # Makro-Features auswaehlen (auskommentierte werden bewusst nicht genutzt)
 macro_features = [
     'word_count',
-    #'pronoun_dominance',
-    #'absolutist_ratio',
-    #'absolute_uncertain_ratio',
-    #'time_focus_score',
-    #'future_count',
-    #'past_count',
+    'all_pronouns',
+    'future_count',
+    'past_count',
     'self_pronouns_count',
     'first_pl_pr_count',
     'second_pronouns_count',
@@ -50,7 +47,7 @@ macro_features = [
     'self_pr_other_count',
     'question_marks_count',
     'ellipses_count',
-    'exclamation_marks_count',
+    'exclamation_marks_count', 
     'sleep_words',
     'stopwords_per_text_ratio'
 ]

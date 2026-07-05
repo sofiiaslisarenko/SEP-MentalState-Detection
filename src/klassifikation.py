@@ -16,7 +16,8 @@ df0, all_target_words = create_all_features(df0)
 train_df, test_df = train_testdaten_split(df0)
 
 macro_features = [
-    'word_count', 
+    'word_count',
+    'all_pronouns',
     'absolutist_count',
     'uncertain_count',
     'future_count',
