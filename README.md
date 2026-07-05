@@ -42,7 +42,10 @@ Die Label sind keine medizinischen Diagnosen, sondern reflektieren lediglich den
 
 Unsere Fragestellungen
 
-- Regression:        Wie gut kann der VADER-Sentiment-Score durch einfache Textmerkmale vorhergesagt werden?
-- Klassifikation:    Wie gut lassen sich die Labels (status) aufgrund der ermittelten Features des Datensatzes vorhersagen?
-- Clustering:        Welche Gruppen lassen sich aus den Features im Datensatz bestimmen?
+Klassifikation:
+Lässt sich anhand eines Textes (statement) der psychische Zustand einer Person klassifizieren?
+Regression:
+Lässt sich der mit VADER berechnete Sentiment-Score eines Textes aus einfachen, selbst definierten Textmerkmalen vorhersagen? 
+Clustering:
+Welche natürlichen Gruppen lassen sich in den Texten finden, ohne Nutzung der vorhandenen Labels?
 
